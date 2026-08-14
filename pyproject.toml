@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "search-r1-lab"
+version = "0.1.0"
+description = "Reproducible Search-R1 inference and training experiments"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Qi18"}]
+dependencies = [
+  "faiss-cpu>=1.9,<2",
+  "numpy>=1.26,<3",
+  "torch>=2.4,<2.7",
+  "transformers>=4.47,<4.52",
+]
+
+[tool.setuptools.packages.find]
+include = ["search_r1_lab*"]
