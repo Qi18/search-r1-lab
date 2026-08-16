@@ -1,4 +1,4 @@
-# search-r1-lab
+# Search-R1 L20 Experiment
 
 A small, reproducible laboratory for understanding and reproducing Search-R1.
 The repository follows NanoChat's experiment style: one readable shell entry
