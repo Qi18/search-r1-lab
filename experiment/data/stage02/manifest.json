@@ -1,0 +1,28 @@
+{
+  "documents": 96,
+  "train_examples": 64,
+  "validation_examples": 32,
+  "validation_is_disjoint": true,
+  "files": {
+    "corpus": {
+      "path": "corpus.jsonl",
+      "sha256": "c2535bdca3c4cd208dcbe348cd2ebe305947e0c1964d2134851ec81446ff4392"
+    },
+    "train_eval": {
+      "path": "train_eval.jsonl",
+      "sha256": "d78eccf33a8dd99c27fbf8ffdcaf084e482e34efa54ba647a4e0da01e0590f0a"
+    },
+    "val_eval": {
+      "path": "val_eval.jsonl",
+      "sha256": "9fecdaa3f6849793f89d00ed3e74bc0bb3b3a7fc1887a483dff6eabaf44d43e7"
+    },
+    "train": {
+      "path": "train.parquet",
+      "sha256": "6a17d83608020f0897ae56e76623b987a6743134e5adf749e0966dae5fc09672"
+    },
+    "val": {
+      "path": "val.parquet",
+      "sha256": "95654741ec79618103fb9a4bb5ff151a88f4fb29a3b6ccaa849e620da53cf714"
+    }
+  }
+}

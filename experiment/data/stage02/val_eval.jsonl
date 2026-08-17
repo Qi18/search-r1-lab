@@ -1,0 +1,32 @@
+{"id": "q-stage02-material-01", "question": "What material lines the Alder Pressure Shell?", "answer": "titanium carbide", "evidence_id": "stage02-material-01"}
+{"id": "q-stage02-material-02", "question": "What material lines the Birch Thermal Chamber?", "answer": "boron nitride", "evidence_id": "stage02-material-02"}
+{"id": "q-stage02-material-03", "question": "What material lines the Cairn Vacuum Vessel?", "answer": "silicon carbide", "evidence_id": "stage02-material-03"}
+{"id": "q-stage02-material-04", "question": "What material lines the Dawn Reaction Cell?", "answer": "zirconium oxide", "evidence_id": "stage02-material-04"}
+{"id": "q-stage02-material-05", "question": "What material lines the Elm Cryogenic Tank?", "answer": "aluminum nitride", "evidence_id": "stage02-material-05"}
+{"id": "q-stage02-material-06", "question": "What material lines the Flint Containment Drum?", "answer": "tantalum carbide", "evidence_id": "stage02-material-06"}
+{"id": "q-stage02-material-07", "question": "What material lines the Grove Test Capsule?", "answer": "magnesium oxide", "evidence_id": "stage02-material-07"}
+{"id": "q-stage02-material-08", "question": "What material lines the Hearth Plasma Tube?", "answer": "yttrium oxide", "evidence_id": "stage02-material-08"}
+{"id": "q-stage02-depth-01", "question": "At what depth is the Iris Ocean Node anchored?", "answer": "740 meters", "evidence_id": "stage02-depth-01"}
+{"id": "q-stage02-depth-02", "question": "At what depth is the Jade Current Monitor anchored?", "answer": "915 meters", "evidence_id": "stage02-depth-02"}
+{"id": "q-stage02-depth-03", "question": "At what depth is the Kelp Seismic Pod anchored?", "answer": "680 meters", "evidence_id": "stage02-depth-03"}
+{"id": "q-stage02-depth-04", "question": "At what depth is the Lotus Abyss Station anchored?", "answer": "1,120 meters", "evidence_id": "stage02-depth-04"}
+{"id": "q-stage02-depth-05", "question": "At what depth is the Mica Salinity Array anchored?", "answer": "835 meters", "evidence_id": "stage02-depth-05"}
+{"id": "q-stage02-depth-06", "question": "At what depth is the Nacre Hydrophone anchored?", "answer": "960 meters", "evidence_id": "stage02-depth-06"}
+{"id": "q-stage02-depth-07", "question": "At what depth is the Opal Trench Relay anchored?", "answer": "1,275 meters", "evidence_id": "stage02-depth-07"}
+{"id": "q-stage02-depth-08", "question": "At what depth is the Pearl Benthic Lab anchored?", "answer": "705 meters", "evidence_id": "stage02-depth-08"}
+{"id": "q-stage02-commander-01", "question": "Who commanded the Quartz Horizon Mission?", "answer": "Elara Niven", "evidence_id": "stage02-commander-01"}
+{"id": "q-stage02-commander-02", "question": "Who commanded the Riverglass Expedition?", "answer": "Pavel Orin", "evidence_id": "stage02-commander-02"}
+{"id": "q-stage02-commander-03", "question": "Who commanded the Silver Comet Survey?", "answer": "Mina Tarek", "evidence_id": "stage02-commander-03"}
+{"id": "q-stage02-commander-04", "question": "Who commanded the Timberline Transit?", "answer": "Joren Vale", "evidence_id": "stage02-commander-04"}
+{"id": "q-stage02-commander-05", "question": "Who commanded the Umbral Coast Mission?", "answer": "Sela Rinn", "evidence_id": "stage02-commander-05"}
+{"id": "q-stage02-commander-06", "question": "Who commanded the Verdant Orbit Survey?", "answer": "Kian Dorel", "evidence_id": "stage02-commander-06"}
+{"id": "q-stage02-commander-07", "question": "Who commanded the Willow Star Expedition?", "answer": "Anya Vesk", "evidence_id": "stage02-commander-07"}
+{"id": "q-stage02-commander-08", "question": "Who commanded the Xylem Frontier Transit?", "answer": "Ravi Sorn", "evidence_id": "stage02-commander-08"}
+{"id": "q-stage02-signal-01", "question": "What color does the Yarrow Dock Beacon flash during calibration?", "answer": "amber", "evidence_id": "stage02-signal-01"}
+{"id": "q-stage02-signal-02", "question": "What color does the Zenith Mooring Light flash during calibration?", "answer": "violet", "evidence_id": "stage02-signal-02"}
+{"id": "q-stage02-signal-03", "question": "What color does the Auburn Range Marker flash during calibration?", "answer": "cyan", "evidence_id": "stage02-signal-03"}
+{"id": "q-stage02-signal-04", "question": "What color does the Bramble Safety Lamp flash during calibration?", "answer": "indigo", "evidence_id": "stage02-signal-04"}
+{"id": "q-stage02-signal-05", "question": "What color does the Copper Channel Buoy flash during calibration?", "answer": "white", "evidence_id": "stage02-signal-05"}
+{"id": "q-stage02-signal-06", "question": "What color does the Dune Approach Signal flash during calibration?", "answer": "green", "evidence_id": "stage02-signal-06"}
+{"id": "q-stage02-signal-07", "question": "What color does the Estuary Guide Light flash during calibration?", "answer": "crimson", "evidence_id": "stage02-signal-07"}
+{"id": "q-stage02-signal-08", "question": "What color does the Fjord Navigation Lamp flash during calibration?", "answer": "blue", "evidence_id": "stage02-signal-08"}

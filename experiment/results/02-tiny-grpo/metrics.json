@@ -1,0 +1,709 @@
+{
+  "generated_at": "2026-08-17T14:01:49.102234+00:00",
+  "metrics": {
+    "qwen-base-pre/no-search": {
+      "examples": 32,
+      "exact_match": 0.0,
+      "token_f1": 0.03977272727272727,
+      "answer_contains": 0.0,
+      "valid_answer_rate": 0.8125,
+      "generated_search_tag_rate": 0.75,
+      "retriever_request_rate": 0.0,
+      "retrieval_hit_rate": 0.0,
+      "retrieval_hit_at_1": 0.0,
+      "retrieval_hit_at_3": 0.0,
+      "avg_search_turns": 0.75,
+      "avg_input_tokens": 188.375,
+      "avg_output_tokens": 120.3125,
+      "avg_latency_seconds": 1.698024696257562
+    },
+    "qwen-base-pre/search": {
+      "examples": 32,
+      "exact_match": 0.0625,
+      "token_f1": 0.24795764896867833,
+      "answer_contains": 0.6875,
+      "valid_answer_rate": 0.8125,
+      "generated_search_tag_rate": 0.75,
+      "retriever_request_rate": 0.75,
+      "retrieval_hit_rate": 0.9583333333333334,
+      "retrieval_hit_at_1": 0.9583333333333334,
+      "retrieval_hit_at_3": 0.9583333333333334,
+      "avg_search_turns": 0.75,
+      "avg_input_tokens": 254.6875,
+      "avg_output_tokens": 114.78125,
+      "avg_latency_seconds": 2.449503402414848
+    },
+    "tiny-grpo-20step-post/no-search": {
+      "examples": 32,
+      "exact_match": 0.0,
+      "token_f1": 0.042140151515151526,
+      "answer_contains": 0.0,
+      "valid_answer_rate": 1.0,
+      "generated_search_tag_rate": 1.0,
+      "retriever_request_rate": 0.0,
+      "retrieval_hit_rate": 0.0,
+      "retrieval_hit_at_1": 0.0,
+      "retrieval_hit_at_3": 0.0,
+      "avg_search_turns": 1.0,
+      "avg_input_tokens": 208.8125,
+      "avg_output_tokens": 41.6875,
+      "avg_latency_seconds": 0.5599964080338395
+    },
+    "tiny-grpo-20step-post/search": {
+      "examples": 32,
+      "exact_match": 0.28125,
+      "token_f1": 0.4973011363636363,
+      "answer_contains": 0.875,
+      "valid_answer_rate": 1.0,
+      "generated_search_tag_rate": 1.0,
+      "retriever_request_rate": 1.0,
+      "retrieval_hit_rate": 1.0,
+      "retrieval_hit_at_1": 1.0,
+      "retrieval_hit_at_3": 1.0,
+      "avg_search_turns": 1.0,
+      "avg_input_tokens": 296.21875,
+      "avg_output_tokens": 38.25,
+      "avg_latency_seconds": 0.5675708042508631
+    }
+  },
+  "search_mode_changes": {
+    "exact_match": 0.21875,
+    "answer_contains": 0.1875,
+    "token_f1": 0.24934348739495799,
+    "retriever_request_rate": 0.25
+  },
+  "outcomes": {
+    "qwen-base-pre/no-search": {
+      "incorrect": 26,
+      "invalid_format": 6
+    },
+    "qwen-base-pre/search": {
+      "contains_only": 20,
+      "retrieval_miss": 1,
+      "incorrect": 3,
+      "exact": 2,
+      "invalid_format": 6
+    },
+    "tiny-grpo-20step-post/no-search": {
+      "incorrect": 32
+    },
+    "tiny-grpo-20step-post/search": {
+      "contains_only": 19,
+      "incorrect": 4,
+      "exact": 9
+    }
+  },
+  "training_acceptance": {
+    "1": {
+      "checks": {
+        "advantage_variation": true,
+        "checkpoint_config": true,
+        "checkpoint_tokenizer": true,
+        "checkpoint_weights": true,
+        "expected_step_logged": true,
+        "finite_metrics": true,
+        "log_exists": true,
+        "no_fatal_pattern": true,
+        "optimizer_step_logged": true,
+        "required_metrics_present": true,
+        "reward_variation": true,
+        "search_observed": true
+      },
+      "expected_step": 1,
+      "last_training_metrics": {
+        "actor/entropy_loss": 1.192,
+        "actor/grad_norm": 3.155,
+        "actor/kl_coef": 0.001,
+        "actor/kl_loss": 0.0,
+        "actor/lr": 0.0,
+        "actor/pg_clipfrac": 0.0,
+        "actor/pg_loss": 0.103,
+        "actor/ppo_kl": -0.001,
+        "critic/advantages/max": 1.5,
+        "critic/advantages/mean": -0.078,
+        "critic/advantages/min": -0.866,
+        "critic/returns/max": 1.5,
+        "critic/returns/mean": -0.078,
+        "critic/returns/min": -0.866,
+        "critic/rewards/max": 1.0,
+        "critic/rewards/mean": 0.164,
+        "critic/rewards/min": 0.0,
+        "critic/score/max": 1.0,
+        "critic/score/mean": 0.164,
+        "critic/score/min": 0.0,
+        "env/finish_ratio": 0.5,
+        "env/number_of_actions/max": 3.0,
+        "env/number_of_actions/mean": 2.438,
+        "env/number_of_actions/min": 1.0,
+        "env/number_of_valid_action": 1.219,
+        "env/number_of_valid_search": 0.719,
+        "env/ratio_of_valid_action": 0.587,
+        "global_seqlen/balanced_max": 8608.0,
+        "global_seqlen/balanced_min": 8605.0,
+        "global_seqlen/max": 12020.0,
+        "global_seqlen/mean": 8606.625,
+        "global_seqlen/min": 6388.0,
+        "global_seqlen/minmax_diff": 5632.0,
+        "mfu/actor": 0.037,
+        "prompt_length/clip_ratio": 0.0,
+        "prompt_length/max": 144.0,
+        "prompt_length/mean": 141.094,
+        "prompt_length/min": 137.0,
+        "response_length/clip_ratio": 0.07,
+        "response_length/max": 874.0,
+        "response_length/mean": 396.82,
+        "response_length/min": 11.0,
+        "state_tokens/coverage": 0.775,
+        "state_tokens/total": 39357.0,
+        "step": 1,
+        "timing_per_token_ms/adv": 0.0,
+        "timing_per_token_ms/gen": 1.753,
+        "timing_per_token_ms/ref": 0.048,
+        "timing_per_token_ms/update_actor": 0.596,
+        "timing_s/adv": 0.025,
+        "timing_s/gen": 89.053,
+        "timing_s/ref": 3.288,
+        "timing_s/save_checkpoint": 37.847,
+        "timing_s/step": 215.907,
+        "timing_s/testing": 41.202,
+        "timing_s/update_actor": 41.029,
+        "val/test_score/nq": 0.094
+      },
+      "metric_rows": 3,
+      "status": "PASS",
+      "training_rows": 1
+    },
+    "5": {
+      "checks": {
+        "advantage_variation": true,
+        "checkpoint_config": true,
+        "checkpoint_tokenizer": true,
+        "checkpoint_weights": true,
+        "expected_step_logged": true,
+        "finite_metrics": true,
+        "log_exists": true,
+        "no_fatal_pattern": true,
+        "optimizer_step_logged": true,
+        "required_metrics_present": true,
+        "reward_variation": true,
+        "search_observed": true
+      },
+      "expected_step": 5,
+      "last_training_metrics": {
+        "actor/entropy_loss": 1.285,
+        "actor/grad_norm": 3.333,
+        "actor/kl_coef": 0.001,
+        "actor/kl_loss": 0.023,
+        "actor/lr": 0.0,
+        "actor/pg_clipfrac": 0.006,
+        "actor/pg_loss": 0.015,
+        "actor/ppo_kl": -0.003,
+        "critic/advantages/max": 1.5,
+        "critic/advantages/mean": -0.124,
+        "critic/advantages/min": -1.5,
+        "critic/returns/max": 1.5,
+        "critic/returns/mean": -0.124,
+        "critic/returns/min": -1.5,
+        "critic/rewards/max": 1.0,
+        "critic/rewards/mean": 0.281,
+        "critic/rewards/min": 0.0,
+        "critic/score/max": 1.0,
+        "critic/score/mean": 0.281,
+        "critic/score/min": 0.0,
+        "env/finish_ratio": 0.562,
+        "env/number_of_actions/max": 3.0,
+        "env/number_of_actions/mean": 2.445,
+        "env/number_of_actions/min": 1.0,
+        "env/number_of_valid_action": 1.594,
+        "env/number_of_valid_search": 1.031,
+        "env/ratio_of_valid_action": 0.716,
+        "global_seqlen/balanced_max": 7582.0,
+        "global_seqlen/balanced_min": 7581.0,
+        "global_seqlen/max": 8655.0,
+        "global_seqlen/mean": 7581.5,
+        "global_seqlen/min": 6625.0,
+        "global_seqlen/minmax_diff": 2030.0,
+        "mfu/actor": 0.032,
+        "prompt_length/clip_ratio": 0.0,
+        "prompt_length/max": 144.0,
+        "prompt_length/mean": 141.0,
+        "prompt_length/min": 137.0,
+        "response_length/clip_ratio": 0.031,
+        "response_length/max": 874.0,
+        "response_length/mean": 332.844,
+        "response_length/min": 7.0,
+        "state_tokens/coverage": 0.712,
+        "state_tokens/total": 30330.0,
+        "step": 5,
+        "timing_per_token_ms/adv": 0.0,
+        "timing_per_token_ms/gen": 1.101,
+        "timing_per_token_ms/ref": 0.052,
+        "timing_per_token_ms/update_actor": 0.68,
+        "timing_s/adv": 0.023,
+        "timing_s/gen": 46.898,
+        "timing_s/ref": 3.183,
+        "timing_s/save_checkpoint": 39.001,
+        "timing_s/step": 162.088,
+        "timing_s/testing": 28.512,
+        "timing_s/update_actor": 41.232,
+        "val/test_score/nq": 0.281
+      },
+      "metric_rows": 7,
+      "status": "PASS",
+      "training_rows": 5
+    },
+    "20": {
+      "checks": {
+        "advantage_variation": true,
+        "checkpoint_config": true,
+        "checkpoint_tokenizer": true,
+        "checkpoint_weights": true,
+        "expected_step_logged": true,
+        "finite_metrics": true,
+        "log_exists": true,
+        "no_fatal_pattern": true,
+        "optimizer_step_logged": true,
+        "required_metrics_present": true,
+        "reward_variation": true,
+        "search_observed": true
+      },
+      "expected_step": 20,
+      "last_training_metrics": {
+        "actor/entropy_loss": 0.282,
+        "actor/grad_norm": 0.283,
+        "actor/kl_coef": 0.001,
+        "actor/kl_loss": 0.246,
+        "actor/lr": 0.0,
+        "actor/pg_clipfrac": 0.003,
+        "actor/pg_loss": -0.032,
+        "actor/ppo_kl": -0.002,
+        "critic/advantages/max": 0.5,
+        "critic/advantages/mean": 0.0,
+        "critic/advantages/min": -1.5,
+        "critic/returns/max": 0.5,
+        "critic/returns/mean": 0.0,
+        "critic/returns/min": -1.5,
+        "critic/rewards/max": 1.0,
+        "critic/rewards/mean": 0.992,
+        "critic/rewards/min": 0.0,
+        "critic/score/max": 1.0,
+        "critic/score/mean": 0.992,
+        "critic/score/min": 0.0,
+        "env/finish_ratio": 1.0,
+        "env/number_of_actions/max": 2.0,
+        "env/number_of_actions/mean": 2.0,
+        "env/number_of_actions/min": 2.0,
+        "env/number_of_valid_action": 2.0,
+        "env/number_of_valid_search": 1.0,
+        "env/ratio_of_valid_action": 1.0,
+        "global_seqlen/balanced_max": 3879.0,
+        "global_seqlen/balanced_min": 3875.0,
+        "global_seqlen/max": 3925.0,
+        "global_seqlen/mean": 3875.875,
+        "global_seqlen/min": 3813.0,
+        "global_seqlen/minmax_diff": 112.0,
+        "mfu/actor": 0.016,
+        "prompt_length/clip_ratio": 0.0,
+        "prompt_length/max": 144.0,
+        "prompt_length/mean": 141.219,
+        "prompt_length/min": 137.0,
+        "response_length/clip_ratio": 0.008,
+        "response_length/max": 133.0,
+        "response_length/mean": 101.023,
+        "response_length/min": 88.0,
+        "state_tokens/coverage": 0.232,
+        "state_tokens/total": 3005.0,
+        "step": 20,
+        "timing_per_token_ms/adv": 0.001,
+        "timing_per_token_ms/gen": 2.358,
+        "timing_per_token_ms/ref": 0.082,
+        "timing_per_token_ms/update_actor": 1.319,
+        "timing_s/adv": 0.016,
+        "timing_s/gen": 30.49,
+        "timing_s/ref": 2.542,
+        "timing_s/save_checkpoint": 36.893,
+        "timing_s/step": 130.177,
+        "timing_s/testing": 16.758,
+        "timing_s/update_actor": 40.899,
+        "val/test_score/nq": 1.0
+      },
+      "metric_rows": 22,
+      "status": "PASS",
+      "training_rows": 20
+    }
+  },
+  "retriever_preflight": {
+    "examples": 32,
+    "hit_at_1": 1.0,
+    "hit_at_3": 1.0,
+    "minimum_hit_at_3": 0.95,
+    "passed": true,
+    "outcomes": [
+      {
+        "id": "q-stage02-material-01",
+        "evidence_id": "stage02-material-01",
+        "retrieved_ids": [
+          "stage02-material-01",
+          "stage02-material-05",
+          "stage02-material-03"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-material-02",
+        "evidence_id": "stage02-material-02",
+        "retrieved_ids": [
+          "stage02-material-02",
+          "stage02-material-05",
+          "stage02-material-03"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-material-03",
+        "evidence_id": "stage02-material-03",
+        "retrieved_ids": [
+          "stage02-material-03",
+          "stage02-material-02",
+          "stage02-material-05"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-material-04",
+        "evidence_id": "stage02-material-04",
+        "retrieved_ids": [
+          "stage02-material-04",
+          "isotope-03",
+          "isotope-05"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-material-05",
+        "evidence_id": "stage02-material-05",
+        "retrieved_ids": [
+          "stage02-material-05",
+          "stage02-material-08",
+          "stage02-material-03"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-material-06",
+        "evidence_id": "stage02-material-06",
+        "retrieved_ids": [
+          "stage02-material-06",
+          "stage02-material-05",
+          "stage02-material-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-material-07",
+        "evidence_id": "stage02-material-07",
+        "retrieved_ids": [
+          "stage02-material-07",
+          "isotope-07",
+          "isotope-03"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-material-08",
+        "evidence_id": "stage02-material-08",
+        "retrieved_ids": [
+          "stage02-material-08",
+          "stage02-material-05",
+          "stage02-material-03"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-01",
+        "evidence_id": "stage02-depth-01",
+        "retrieved_ids": [
+          "stage02-depth-01",
+          "stage02-depth-04",
+          "stage02-depth-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-02",
+        "evidence_id": "stage02-depth-02",
+        "retrieved_ids": [
+          "stage02-depth-02",
+          "stage02-depth-08",
+          "stage02-depth-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-03",
+        "evidence_id": "stage02-depth-03",
+        "retrieved_ids": [
+          "stage02-depth-03",
+          "stage02-depth-06",
+          "stage02-depth-01"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-04",
+        "evidence_id": "stage02-depth-04",
+        "retrieved_ids": [
+          "stage02-depth-04",
+          "stage02-depth-08",
+          "stage02-depth-01"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-05",
+        "evidence_id": "stage02-depth-05",
+        "retrieved_ids": [
+          "stage02-depth-05",
+          "stage02-depth-08",
+          "stage02-depth-01"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-06",
+        "evidence_id": "stage02-depth-06",
+        "retrieved_ids": [
+          "stage02-depth-06",
+          "stage02-depth-03",
+          "stage02-depth-05"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-07",
+        "evidence_id": "stage02-depth-07",
+        "retrieved_ids": [
+          "stage02-depth-07",
+          "stage02-depth-01",
+          "stage02-depth-04"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-depth-08",
+        "evidence_id": "stage02-depth-08",
+        "retrieved_ids": [
+          "stage02-depth-08",
+          "stage02-depth-04",
+          "stage02-depth-02"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-01",
+        "evidence_id": "stage02-commander-01",
+        "retrieved_ids": [
+          "stage02-commander-01",
+          "stage02-commander-06",
+          "stage02-commander-02"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-02",
+        "evidence_id": "stage02-commander-02",
+        "retrieved_ids": [
+          "stage02-commander-02",
+          "stage02-commander-01",
+          "stage02-commander-06"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-03",
+        "evidence_id": "stage02-commander-03",
+        "retrieved_ids": [
+          "stage02-commander-03",
+          "stage02-commander-06",
+          "stage02-commander-01"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-04",
+        "evidence_id": "stage02-commander-04",
+        "retrieved_ids": [
+          "stage02-commander-04",
+          "stage02-commander-08",
+          "stage02-commander-02"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-05",
+        "evidence_id": "stage02-commander-05",
+        "retrieved_ids": [
+          "stage02-commander-05",
+          "stage02-commander-02",
+          "stage02-commander-01"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-06",
+        "evidence_id": "stage02-commander-06",
+        "retrieved_ids": [
+          "stage02-commander-06",
+          "stage02-commander-03",
+          "stage02-commander-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-07",
+        "evidence_id": "stage02-commander-07",
+        "retrieved_ids": [
+          "stage02-commander-07",
+          "stage02-commander-02",
+          "stage02-commander-01"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-commander-08",
+        "evidence_id": "stage02-commander-08",
+        "retrieved_ids": [
+          "stage02-commander-08",
+          "stage02-commander-04",
+          "stage02-commander-02"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-01",
+        "evidence_id": "stage02-signal-01",
+        "retrieved_ids": [
+          "stage02-signal-01",
+          "stage02-signal-07",
+          "stage02-signal-02"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-02",
+        "evidence_id": "stage02-signal-02",
+        "retrieved_ids": [
+          "stage02-signal-02",
+          "stage02-signal-05",
+          "stage02-signal-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-03",
+        "evidence_id": "stage02-signal-03",
+        "retrieved_ids": [
+          "stage02-signal-03",
+          "stage02-signal-07",
+          "stage02-signal-02"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-04",
+        "evidence_id": "stage02-signal-04",
+        "retrieved_ids": [
+          "stage02-signal-04",
+          "stage02-signal-08",
+          "stage02-signal-02"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-05",
+        "evidence_id": "stage02-signal-05",
+        "retrieved_ids": [
+          "stage02-signal-05",
+          "stage02-signal-02",
+          "stage02-signal-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-06",
+        "evidence_id": "stage02-signal-06",
+        "retrieved_ids": [
+          "stage02-signal-06",
+          "stage02-signal-02",
+          "stage02-signal-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-07",
+        "evidence_id": "stage02-signal-07",
+        "retrieved_ids": [
+          "stage02-signal-07",
+          "stage02-signal-02",
+          "stage02-signal-08"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      },
+      {
+        "id": "q-stage02-signal-08",
+        "evidence_id": "stage02-signal-08",
+        "retrieved_ids": [
+          "stage02-signal-08",
+          "stage02-signal-02",
+          "stage02-signal-07"
+        ],
+        "hit_at_1": true,
+        "hit_at_3": true
+      }
+    ]
+  },
+  "acceptance": {
+    "passed": true,
+    "checks": {
+      "32_examples_per_quadrant": true,
+      "identical_question_ids": true,
+      "required_fields": true,
+      "finite_metrics": true,
+      "no_search_has_no_requests": true,
+      "retriever_preflight": true,
+      "all_training_runs_pass": true,
+      "checkpoint_reloaded": true
+    }
+  }
+}
