@@ -34,7 +34,7 @@ PY
 python3 -m unittest discover -s "${LAB_ROOT}/tests" -v \
   2>&1 | tee "${RUN_DIR}/tests.log"
 
-python3 -u -m scripts.build_index \
+python3 -u "${LAB_ROOT}/scripts/build_index.py" \
   --corpus "${CORPUS}" \
   --index "${INDEX_DIR}/e5_Flat.index" \
   --metadata "${INDEX_DIR}/metadata.json" \
@@ -42,7 +42,7 @@ python3 -u -m scripts.build_index \
   --device cpu \
   2>&1 | tee "${RUN_DIR}/build_index.log"
 
-CUDA_VISIBLE_DEVICES=0 python3 -u -m scripts.run_eval \
+CUDA_VISIBLE_DEVICES=0 python3 -u "${LAB_ROOT}/scripts/run_eval.py" \
   --model "${SEARCH_R1_MODEL_PATH}" \
   --corpus "${CORPUS}" \
   --eval "${EVAL_DATA}" \
@@ -57,7 +57,7 @@ CUDA_VISIBLE_DEVICES=0 python3 -u -m scripts.run_eval \
   --output "${RESULTS}" \
   2>&1 | tee "${RUN_DIR}/run_eval.log"
 
-python3 -u -m scripts.summarize \
+python3 -u "${LAB_ROOT}/scripts/summarize.py" \
   --results "${RESULTS}" \
   --metrics "${METRICS}" \
   --markdown "${REPORT}" \

@@ -95,8 +95,6 @@ celerybeat-schedule
 
 
 # virtualenv
-.deps/
-.venv/
 venv/
 ENV/
 

@@ -19,8 +19,8 @@ The default L20 setup expects:
 - Python 3.10 with PyTorch, Transformers, NumPy, and FAISS
 
 ```bash
-source env.sh
-bash runs/runsmoke.sh
+source experiment/env.sh
+bash experiment/runs/runsmoke.sh
 ```
 
 Override paths without editing scripts:
@@ -28,7 +28,7 @@ Override paths without editing scripts:
 ```bash
 SEARCH_R1_MODEL_PATH=/path/to/model \
 SEARCH_R1_LAB_CACHE=/path/to/cache \
-bash runs/runsmoke.sh
+bash experiment/runs/runsmoke.sh
 ```
 
 ## Reference pipeline
@@ -39,7 +39,7 @@ environment check
   -> no-search baseline
   -> Search-R1 multi-turn search
   -> EM/F1/tool metrics
-  -> learning/experiments/00-search-smoke/results.md
+  -> experiment/learning/experiments/00-search-smoke/results.md
 ```
 
 Large models, indexes, raw logs, and generated trajectories live under
@@ -49,15 +49,15 @@ and compact result summaries.
 ## Layout
 
 ```text
-runs/runsmoke.sh                 reference smoke pipeline
-scripts/build_index.py           build the E5 + FAISS index
-scripts/run_eval.py              run no-search/search trajectories
-scripts/summarize.py             calculate and render metrics
-search_r1_lab/                   reusable protocol, retrieval, agent, metrics
-data/                            deterministic synthetic corpus and QA set
-learning/experiments/            checked-in experiment conclusions
-TRAINING_PLAN.md                 staged path from smoke test to GRPO
-FINAL_REPORT.md                  latest verified project state
+experiment/runs/runsmoke.sh                 reference smoke pipeline
+experiment/scripts/build_index.py           build the E5 + FAISS index
+experiment/scripts/run_eval.py              run no-search/search trajectories
+experiment/scripts/summarize.py             calculate and render metrics
+experiment/search_r1_lab/                   reusable protocol, retrieval, agent, metrics
+experiment/data/                            deterministic synthetic corpus and QA set
+experiment/learning/experiments/            checked-in experiment conclusions
+experiment/TRAINING_PLAN.md                 staged path from smoke test to GRPO
+experiment/FINAL_REPORT.md                  latest verified project state
 ```
 
 This is not yet a full paper reproduction. The full NQ/HotpotQA + Wikipedia
