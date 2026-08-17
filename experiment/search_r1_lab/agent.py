@@ -80,7 +80,7 @@ class SearchR1Agent:
     def answer(self, question: str, *, search_enabled: bool) -> dict:
         prompt = self._render_prompt(question)
         transcript = ""
-        searches: list[dict] = []
+        search_events: list[dict] = []
         start = time.perf_counter()
 
         for turn in range(self.config.max_search_turns + 1):
@@ -104,13 +104,23 @@ class SearchR1Agent:
                 break
 
             query = extract_search_query(generated)
+            if query is None:
+                break
+
+            event = {
+                "query": query,
+                "retriever_requested": False,
+                "results": [],
+            }
+            search_events.append(event)
             if not query or turn >= self.config.max_search_turns:
                 break
 
-            results = self.retriever.search(query, self.config.topk) if search_enabled else []
-            searches.append({"query": query, "results": results})
+            if search_enabled:
+                event["results"] = self.retriever.search(query, self.config.topk)
+                event["retriever_requested"] = True
             information = (
-                format_results(results)
+                format_results(event["results"])
                 if search_enabled
                 else "The search tool is disabled for this baseline."
             )
@@ -118,10 +128,14 @@ class SearchR1Agent:
             transcript += observation
             prompt += observation
 
+        retriever_request_count = sum(
+            event["retriever_requested"] for event in search_events
+        )
         return {
             "prediction": extract_answer(transcript),
             "trajectory": transcript,
-            "searches": searches,
-            "search_count": len(searches),
+            "search_events": search_events,
+            "generated_search_count": len(search_events),
+            "retriever_request_count": retriever_request_count,
             "latency_seconds": time.perf_counter() - start,
         }

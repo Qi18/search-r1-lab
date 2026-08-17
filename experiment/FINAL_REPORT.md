@@ -22,18 +22,20 @@ Environment:
 - the full `runs/runsmoke.sh` chain completed;
 - all eight search queries retrieved the expected evidence in Top-3;
 - all sixteen trajectories used valid `<answer>` formatting;
-- every trajectory made exactly one `<search>` call.
+- every trajectory generated exactly one `<search>` action;
+- no-search made zero Retriever requests, while search made eight.
 
 ## Result
 
-| Mode | EM | Answer contains | F1 | Hit@3 |
-| --- | ---: | ---: | ---: | ---: |
-| Search disabled | 0.0% | 0.0% | 3.1% | 0.0% |
-| Search enabled | 62.5% | 100.0% | 83.3% | 100.0% |
+| Mode | EM | Answer contains | F1 | Generated search | Retriever request | Hit@3 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Search disabled | 0.0% | 0.0% | 3.1% | 100.0% | 0.0% | 0.0% |
+| Search enabled | 62.5% | 100.0% | 83.3% | 100.0% | 100.0% | 100.0% |
 
 Enabling retrieval improved exact match by 62.5 percentage points and token F1
 by 80.2 points. Three search-enabled answers contained the exact gold fact plus
 extra wording, so answer containment reached 100% while strict EM was 62.5%.
+The split metrics confirm that no-search still expresses search intent but never executes the tool.
 
 The first implementation placed Qwen on GPU0 and E5 on GPU1 in one Python
 process. After the no-search leg, the first E5 query failed with

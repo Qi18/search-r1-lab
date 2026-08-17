@@ -37,8 +37,8 @@ def main() -> None:
         f"- Trajectories: `{Path(args.results).resolve()}`",
         f"- Generated: `{payload['generated_at']}`",
         "",
-        "| Mode | EM | Contains | F1 | Valid answer | Search calls | Hit@k | Avg searches | Avg latency |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Mode | EM | Contains | F1 | Valid answer | Generated search | Retriever request | Hit@k | Avg turns | Avg latency |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for mode in ("no-search", "search"):
         if mode not in metrics:
@@ -47,10 +47,11 @@ def main() -> None:
         lines.append(
             f"| {mode} | {percentage(item['exact_match'])} | "
             f"{percentage(item['answer_contains'])} | "
-            f"{percentage(item['token_f1'])} | {percentage(item['format_valid'])} | "
-            f"{percentage(item['search_call_rate'])} | "
-            f"{percentage(item['retrieval_hit_at_k'])} | "
-            f"{item['avg_searches']:.2f} | {item['avg_latency_seconds']:.2f}s |"
+            f"{percentage(item['token_f1'])} | {percentage(item['valid_answer_rate'])} | "
+            f"{percentage(item['generated_search_tag_rate'])} | "
+            f"{percentage(item['retriever_request_rate'])} | "
+            f"{percentage(item['retrieval_hit_rate'])} | "
+            f"{item['avg_search_turns']:.2f} | {item['avg_latency_seconds']:.2f}s |"
         )
 
     lines.extend(
@@ -58,15 +59,16 @@ def main() -> None:
             "",
             "## Per-question outcomes",
             "",
-            "| Mode | ID | Expected | Prediction | Searches |",
-            "| --- | --- | --- | --- | ---: |",
+            "| Mode | ID | Expected | Prediction | Generated | Requests |",
+            "| --- | --- | --- | --- | ---: | ---: |",
         ]
     )
     for row in rows:
         prediction = row["prediction"].replace("|", "\\|") or "(missing)"
         lines.append(
             f"| {row['mode']} | {row['id']} | {row['answer']} | "
-            f"{prediction} | {row['search_count']} |"
+            f"{prediction} | {row['generated_search_count']} | "
+            f"{row['retriever_request_count']} |"
         )
     lines.append("")
     markdown_path = Path(args.markdown)

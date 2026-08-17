@@ -44,8 +44,8 @@ def retrieval_hit(record: dict) -> float:
         return 0.0
     retrieved = {
         result.get("id")
-        for search in record.get("searches", [])
-        for result in search.get("results", [])
+        for event in record.get("search_events", [])
+        for result in event.get("results", [])
     }
     return float(expected in retrieved)
 
@@ -63,10 +63,11 @@ def compute_metrics(records: list[dict]) -> dict[str, dict[str, float]]:
             "exact_match": sum(exact_match(row["prediction"], row["answer"]) for row in rows) / count,
             "token_f1": sum(token_f1(row["prediction"], row["answer"]) for row in rows) / count,
             "answer_contains": sum(contains_answer(row["prediction"], row["answer"]) for row in rows) / count,
-            "format_valid": sum(has_valid_answer(row["trajectory"]) for row in rows) / count,
-            "search_call_rate": sum(row["search_count"] > 0 for row in rows) / count,
-            "avg_searches": sum(row["search_count"] for row in rows) / count,
-            "retrieval_hit_at_k": sum(retrieval_hit(row) for row in rows) / count,
+            "valid_answer_rate": sum(has_valid_answer(row["trajectory"]) for row in rows) / count,
+            "generated_search_tag_rate": sum(row["generated_search_count"] > 0 for row in rows) / count,
+            "retriever_request_rate": sum(row["retriever_request_count"] > 0 for row in rows) / count,
+            "retrieval_hit_rate": sum(retrieval_hit(row) for row in rows) / count,
+            "avg_search_turns": sum(row["generated_search_count"] for row in rows) / count,
             "avg_latency_seconds": sum(row["latency_seconds"] for row in rows) / count,
         }
     return summary

@@ -60,7 +60,8 @@ def main() -> None:
                 }
             )
             print(
-                f"prediction={result['prediction']!r} searches={result['search_count']} "
+                f"prediction={result['prediction']!r} "
+                f"generated={result['generated_search_count']} requests={result['retriever_request_count']} "
                 f"latency={result['latency_seconds']:.2f}s",
                 flush=True,
             )

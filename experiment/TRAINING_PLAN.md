@@ -19,7 +19,7 @@
 - GPU：8 x NVIDIA L20，每张约 46 GB；
 - 数据盘：`/data` 可用空间约 3.5 TB；
 - 官方 Search-R1 基线：`598e61bd1d36895726d28a8d06b3a15bed19f5d3`；
-- 实验分支：`experiment/l20-search-r1-20260816`；
+- 实验分支：`experiment`；
 - 已缓存模型：`/data/cache/search-r1/models/SearchR1-qwen2.5-3b-em-grpo`；
 - 模型与运行缓存约 13 GB；
 - 当前实验单测：5 passed。
@@ -35,17 +35,17 @@ bash experiment/runs/runsmoke.sh
 
 现有 8 条合成问题结果：
 
-| Mode | EM | Contains | F1 | Valid answer | Search calls | Hit@k | Avg searches |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| no-search | 0.0% | 0.0% | 3.1% | 100.0% | 100.0% | 0.0% | 1.00 |
-| search | 62.5% | 100.0% | 83.3% | 100.0% | 100.0% | 100.0% | 1.00 |
+| Mode | EM | Contains | F1 | Valid answer | Generated search | Retriever request | Hit@k | Avg turns |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| no-search | 0.0% | 0.0% | 3.1% | 100.0% | 100.0% | 0.0% | 0.0% | 1.00 |
+| search | 62.5% | 100.0% | 83.3% | 100.0% | 100.0% | 100.0% | 100.0% | 1.00 |
 
-该结果证明检索观察能够显著改善当前合成任务，但暂时不能直接证明 RL 策略本身贡献了多少。
+模型在两种模式下都会生成搜索动作，但 no-search 没有调用 Retriever。该结果证明检索观察能够显著改善当前合成任务，但暂时不能直接证明 RL 策略本身贡献了多少。
 
 ## 总体路线
 
 ```text
-00 inference smoke（已完成，补指标语义）
+00 inference smoke（已完成）
   -> 01 Base vs RL 四象限评测
   -> 02 Tiny GRPO 训练
   -> 03 Agent RL 消融
@@ -64,31 +64,24 @@ bash experiment/runs/runsmoke.sh
 
 ## Stage 00：补强推理 Smoke
 
-### 当前待解决问题
+### 已验证语义
 
-`no-search` 模式仍显示 `Search calls = 100%`。这可能表示：
+- `generated_search_tag_rate`：模型是否生成 `<search>`；
+- `retriever_request_rate`：环境是否真实调用 Retriever；
+- `retrieval_hit_rate`：返回结果是否命中目标证据；
+- `valid_answer_rate`：轨迹是否包含合法 `<answer>`；
+- `avg_search_turns`：每条轨迹平均生成的搜索动作数。
 
-- 模型仍生成了 `<search>` 标签，但环境没有执行检索；
-- 指标统计的是模型搜索意图，而不是真实 Retriever 请求；
-- `no-search` 只屏蔽了观察结果，没有禁止搜索动作。
+本次运行中，两种模式的搜索标签生成率均为 100%；no-search 的 Retriever 请求率为 0%，search 为 100%。旧 `Search calls` 指标混合了模型动作和工具调用，现已拆分。
 
-进入 Stage 01 前必须拆分以下指标：
+### 验收结果
 
-- `generated_search_tag_rate`：模型是否生成搜索标签；
-- `retriever_request_rate`：是否实际向 Retriever 发起请求；
-- `retrieval_hit_rate`：搜索结果是否命中；
-- `valid_answer_rate`：答案标签是否合法；
-- `EM / Contains / F1`：最终回答质量；
-- `avg_search_turns`：每条轨迹平均搜索轮数；
-- `avg_latency`：端到端平均延迟。
-
-### 验收门槛
-
-- 合成语料与索引可确定性重建；
-- 每个样本都有完整 JSONL 轨迹；
-- 能区分“生成搜索动作”和“实际执行检索”；
-- 没有 CUDA OOM、NaN 或损坏的 JSONL；
-- 命令、日志、指标和结论都能恢复。
+- 5 个单测通过；
+- 16 条 JSONL 轨迹完整；
+- 能区分搜索动作与 Retriever 请求；
+- search 模式 Hit@3 为 100%；
+- 无 CUDA OOM、NaN 或损坏结果；
+- 命令、日志、指标和报告均可恢复。
 
 ## Stage 01：Base vs RL 四象限评测
 
