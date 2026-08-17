@@ -38,6 +38,8 @@ bash experiment/runs/run01_base_vs_rl.sh
 | `scripts/build_index.py` | 使用 E5 + FAISS 构建检索索引 |
 | `scripts/run_eval.py` | 运行 no-search/search 轨迹 |
 | `scripts/summarize.py` | 生成 EM、F1、Hit@k 等指标 |
+| `scripts/generate_stage01_data.py` | 生成固定 64 条 Stage 01 数据 |
+| `scripts/check_retriever.py` | 在模型推理前验收 Retriever |
 | `scripts/summarize_stage01.py` | 汇总四象限差异和失败类型 |
 | `search_r1_lab/agent.py` | 控制搜索、观察和回答的 Agent 循环 |
 | `search_r1_lab/protocol.py` | 解析 `<search>` 和 `<answer>` 协议 |

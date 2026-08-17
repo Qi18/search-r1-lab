@@ -58,26 +58,29 @@ Detailed outcomes are in
 `experiment/results/00-search-smoke/results.md`. Large artifacts are under
 `/data/cache/search-r1-lab/experiments/00-search-smoke`.
 
-## Stage 01 pilot
+## Stage 01 final acceptance
 
-使用同一组 8 条问题、Prompt、Retriever、Top-3、greedy decoding、Token 上限和 GPU，完成 Base/GRPO 与 Retriever 开关四象限：
+使用 64 条固定问题和证据，在相同 Prompt、Retriever、Top-3、greedy decoding、Token 上限和 GPU 下完成 256 条四象限轨迹：
 
 | Model | Retriever | EM | Contains | Valid | Request | Hit@3 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 75.0% | 0.0% | 0.0% |
-| Qwen2.5-3B Base | enabled | 12.5% | 62.5% | 75.0% | 75.0% | 83.3% |
-| Search-R1 GRPO | disabled | 0.0% | 0.0% | 100.0% | 0.0% | 0.0% |
-| Search-R1 GRPO | enabled | 62.5% | 100.0% | 100.0% | 100.0% | 100.0% |
+| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 71.9% | 0.0% | 0.0% |
+| Qwen2.5-3B Base | enabled | 4.7% | 46.9% | 73.4% | 59.4% | 100.0% |
+| Search-R1 GRPO | disabled | 0.0% | 0.0% | 98.4% | 0.0% | 0.0% |
+| Search-R1 GRPO | enabled | 78.1% | 90.6% | 100.0% | 100.0% | 100.0% |
 
-### 初步结论
+### 结论
 
-- Base 可以使用搜索工具，但协议不稳定：2/8 没有合法答案，实际请求率为 75%；
-- GRPO 的格式有效率、请求率和 Hit@3 都达到 100%；
-- 开启搜索时，GRPO 相对 Base 的观察差异为 EM +50.0、F1 +53.9 个百分点；
-- 关闭搜索时两者 EM 都为 0%，当前优势主要体现在搜索协议执行和证据利用，而不是合成事实的内部记忆。
+- 开启搜索时，GRPO 相对 Base 的观察差异为 EM +73.4、F1 +66.1 个百分点；
+- 两个 search 组的条件 Hit@1/Hit@3 都是 100%，说明底层 Retriever 对已发出的查询均能返回目标证据；
+- Base 请求率只有 59.4%、Contains 为 46.9%，GRPO 则分别为 100% 和 90.6%；
+- 因此 GRPO checkpoint 的主要优势体现在稳定调用工具和利用返回证据；
+- 关闭搜索时两者 EM 都为 0%，该差异不是合成事实记忆造成的。
 
-### 状态边界
+### 验收
 
-Stage 01 pilot 链路已完成，但 8 条合成数据不足以完成最终归因。下一步先扩展到 50-200 条固定 QA，再决定是否进入 Tiny GRPO。
+Stage 01 状态为 PASS：每组 64 条、问题集合一致、轨迹完整、指标有限、失败已分类，Retriever 原问题预检 Hit@1/Hit@3 均为 100%。
 
-详细结果位于 `experiment/results/01-base-vs-rl/results.md`，完整轨迹和日志位于 `/data/cache/search-r1-lab/experiments/01-base-vs-rl`。
+详细结果位于 `experiment/results/01-base-vs-rl/results.md`；固定数据位于 `experiment/data/stage01/`；完整轨迹、指标和日志位于 `/data/cache/search-r1-lab/experiments/01-base-vs-rl`。
+
+边界：64 条数据仍为合成事实，结果不能替代真实 NQ/HotpotQA 和多随机种子验证，也不能视为严格因果归因。

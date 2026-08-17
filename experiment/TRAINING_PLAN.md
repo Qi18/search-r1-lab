@@ -47,7 +47,7 @@ bash experiment/runs/runsmoke.sh
 
 ```text
 00 inference smoke（已完成）
-  -> 01 Base vs RL 四象限评测
+  -> 01 Base vs RL 四象限评测（已完成）
   -> 02 Tiny GRPO 训练
   -> 03 Agent RL 消融
   -> 04 NQ/HotpotQA 规模复现
@@ -97,23 +97,23 @@ bash experiment/runs/runsmoke.sh
 | Search-R1 GRPO | disabled | 测量 RL 对直接回答的影响 |
 | Search-R1 GRPO | enabled | 测量完整 Search-R1 效果 |
 
-8 条合成数据 pilot 已完成，下一步扩展到 50-200 条固定 QA。
+最终验收使用 64 条固定 QA 和 64 条对应证据，四象限共 256 条轨迹。
 
-### Pilot 结果（2026-08-17）
+### 最终结果（2026-08-17）
 
 | Model | Retriever | EM | Contains | Valid | Request | Hit@3 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 75.0% | 0.0% | 0.0% |
-| Qwen2.5-3B Base | enabled | 12.5% | 62.5% | 75.0% | 75.0% | 83.3% |
-| Search-R1 GRPO | disabled | 0.0% | 0.0% | 100.0% | 0.0% | 0.0% |
-| Search-R1 GRPO | enabled | 62.5% | 100.0% | 100.0% | 100.0% | 100.0% |
+| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 71.9% | 0.0% | 0.0% |
+| Qwen2.5-3B Base | enabled | 4.7% | 46.9% | 73.4% | 59.4% | 100.0% |
+| Search-R1 GRPO | disabled | 0.0% | 0.0% | 98.4% | 0.0% | 0.0% |
+| Search-R1 GRPO | enabled | 78.1% | 90.6% | 100.0% | 100.0% | 100.0% |
 
-初步观察：
+结论：
 
-- 开启搜索时，GRPO 相对 Base 的 EM 高 50.0 个百分点、F1 高 53.9 个百分点；
-- Base 只有 6/8 样本实际请求 Retriever，其中 5/6 命中目标证据；
-- GRPO 的协议有效率、请求率和 Hit@3 都是 100%；
-- Pilot 链路已完成，但 Base 有 2 条格式失败，且样本量只有 8 条，Stage 01 尚未最终验收。
+- 开启搜索时，GRPO 相对 Base 的 EM 高 73.4 个百分点、F1 高 66.1 个百分点；
+- 两个 search 组的条件 Hit@1/Hit@3 都是 100%，但请求率分别是 59.4% 和 100%；
+- GRPO 的 Contains 为 90.6%，Base 为 46.9%，差异主要来自搜索协议执行和证据利用；
+- 关闭搜索时两者 EM 都为 0%，不能把差异解释为模型记住了合成事实。
 
 ### 必须保持不变的控制变量
 
@@ -144,6 +144,16 @@ bash experiment/runs/runsmoke.sh
 - 能定量分离 Retriever 收益和 RL 策略收益；
 - 每个失败样本都能回看 Prompt、动作、观察和答案；
 - 结果写入 `experiment/results/01-base-vs-rl/results.md`。
+
+### 验收结果
+
+- 状态：PASS；
+- 每个象限 64 条，问题 ID 完全一致；
+- 256 条轨迹字段完整、指标有限、失败均已分类；
+- Retriever 原问题预检 Hit@1/Hit@3 均为 100%；
+- no-search 没有真实 Retriever 请求；
+- corpus SHA-256：`22aaa02b9ea588dc29c938614d9ead1de96fca8806bddc4aa956c6b9316480d3`；
+- eval SHA-256：`d78eccf33a8dd99c27fbf8ffdcaf084e482e34efa54ba647a4e0da01e0590f0a`。
 
 ## Stage 02：Tiny GRPO
 
@@ -398,9 +408,9 @@ Git 只保存源码、小型固定数据、配置和总结。模型、索引、�
 
 ## 下一步
 
-Stage 01 pilot 已完成，当前主任务是扩大评测规模：
+Stage 01 已通过验收，下一步进入 Stage 02 Tiny GRPO：
 
-1. 准备 50-200 条固定 QA 与对应证据语料；
-2. 重跑四象限并检查格式失败、请求率和 Hit@1/Hit@3；
-3. 对失败样本做协议、检索和答案三层归因；
-4. Stage 01 通过验收后再开始 Tiny GRPO。
+1. 建立隔离的 veRL/vLLM 训练环境；
+2. 依次运行 1、5、20 个 optimizer steps；
+3. 检查 Reward、KL、Loss、显存和失败轨迹；
+4. 验证 Checkpoint 保存与回载。

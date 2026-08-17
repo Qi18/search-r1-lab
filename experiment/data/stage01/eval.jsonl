@@ -1,0 +1,64 @@
+{"id": "q-designer-01", "question": "Who designed Avelin Observatory?", "answer": "Mira Solen", "evidence_id": "designer-01"}
+{"id": "q-designer-02", "question": "Who designed Boreal Relay?", "answer": "Tomas Vey", "evidence_id": "designer-02"}
+{"id": "q-designer-03", "question": "Who designed Cindar Gate?", "answer": "Lena Oris", "evidence_id": "designer-03"}
+{"id": "q-designer-04", "question": "Who designed Dovren Array?", "answer": "Soren Kale", "evidence_id": "designer-04"}
+{"id": "q-designer-05", "question": "Who designed Elaris Station?", "answer": "Nadia Voss", "evidence_id": "designer-05"}
+{"id": "q-designer-06", "question": "Who designed Faron Spire?", "answer": "Ilan Meru", "evidence_id": "designer-06"}
+{"id": "q-designer-07", "question": "Who designed Galen Vault?", "answer": "Rhea Nolin", "evidence_id": "designer-07"}
+{"id": "q-designer-08", "question": "Who designed Helion Beacon?", "answer": "Dara Quen", "evidence_id": "designer-08"}
+{"id": "q-service-01", "question": "In what year did Istral Gate enter service?", "answer": "2037", "evidence_id": "service-01"}
+{"id": "q-service-02", "question": "In what year did Jovian Causeway enter service?", "answer": "2042", "evidence_id": "service-02"}
+{"id": "q-service-03", "question": "In what year did Kestrel Bridge enter service?", "answer": "2031", "evidence_id": "service-03"}
+{"id": "q-service-04", "question": "In what year did Lumen Portal enter service?", "answer": "2046", "evidence_id": "service-04"}
+{"id": "q-service-05", "question": "In what year did Meridian Lock enter service?", "answer": "2039", "evidence_id": "service-05"}
+{"id": "q-service-06", "question": "In what year did Neris Passage enter service?", "answer": "2044", "evidence_id": "service-06"}
+{"id": "q-service-07", "question": "In what year did Orilon Crossing enter service?", "answer": "2034", "evidence_id": "service-07"}
+{"id": "q-service-08", "question": "In what year did Pelar Arch enter service?", "answer": "2048", "evidence_id": "service-08"}
+{"id": "q-isotope-01", "question": "Which isotope is used by Quorin Sensor?", "answer": "Xenon-129", "evidence_id": "isotope-01"}
+{"id": "q-isotope-02", "question": "Which isotope is used by Ravel Spectrometer?", "answer": "Carbon-13", "evidence_id": "isotope-02"}
+{"id": "q-isotope-03", "question": "Which isotope is used by Sable Detector?", "answer": "Oxygen-18", "evidence_id": "isotope-03"}
+{"id": "q-isotope-04", "question": "Which isotope is used by Tarin Scanner?", "answer": "Helium-3", "evidence_id": "isotope-04"}
+{"id": "q-isotope-05", "question": "Which isotope is used by Ulmar Imager?", "answer": "Nitrogen-15", "evidence_id": "isotope-05"}
+{"id": "q-isotope-06", "question": "Which isotope is used by Vesper Counter?", "answer": "Deuterium", "evidence_id": "isotope-06"}
+{"id": "q-isotope-07", "question": "Which isotope is used by Weyland Analyzer?", "answer": "Silicon-29", "evidence_id": "isotope-07"}
+{"id": "q-isotope-08", "question": "Which isotope is used by Xandor Monitor?", "answer": "Neon-22", "evidence_id": "isotope-08"}
+{"id": "q-drones-01", "question": "How many autonomous drones joined the Yarrow Ridge Survey?", "answer": "17", "evidence_id": "drones-01"}
+{"id": "q-drones-02", "question": "How many autonomous drones joined the Zephyr Basin Mission?", "answer": "23", "evidence_id": "drones-02"}
+{"id": "q-drones-03", "question": "How many autonomous drones joined the Amber Shelf Expedition?", "answer": "31", "evidence_id": "drones-03"}
+{"id": "q-drones-04", "question": "How many autonomous drones joined the Bracken Field Survey?", "answer": "14", "evidence_id": "drones-04"}
+{"id": "q-drones-05", "question": "How many autonomous drones joined the Cobalt Dune Mission?", "answer": "28", "evidence_id": "drones-05"}
+{"id": "q-drones-06", "question": "How many autonomous drones joined the Delta Crater Expedition?", "answer": "19", "evidence_id": "drones-06"}
+{"id": "q-drones-07", "question": "How many autonomous drones joined the Ember Plain Survey?", "answer": "26", "evidence_id": "drones-07"}
+{"id": "q-drones-08", "question": "How many autonomous drones joined the Frost Vale Mission?", "answer": "12", "evidence_id": "drones-08"}
+{"id": "q-curator-01", "question": "Who was the first curator of the Garnet Archive?", "answer": "Ivo Sen", "evidence_id": "curator-01"}
+{"id": "q-curator-02", "question": "Who was the first curator of the Harbor Manuscript Room?", "answer": "Asha Pell", "evidence_id": "curator-02"}
+{"id": "q-curator-03", "question": "Who was the first curator of the Ivory Record Hall?", "answer": "Niko Daren", "evidence_id": "curator-03"}
+{"id": "q-curator-04", "question": "Who was the first curator of the Juniper Collection?", "answer": "Lea Morin", "evidence_id": "curator-04"}
+{"id": "q-curator-05", "question": "Who was the first curator of the Keystone Repository?", "answer": "Oren Vale", "evidence_id": "curator-05"}
+{"id": "q-curator-06", "question": "Who was the first curator of the Lantern Archive?", "answer": "Talia Sorn", "evidence_id": "curator-06"}
+{"id": "q-curator-07", "question": "Who was the first curator of the Marble Registry?", "answer": "Evan Kiro", "evidence_id": "curator-07"}
+{"id": "q-curator-08", "question": "Who was the first curator of the Northwind Library?", "answer": "Sia Loren", "evidence_id": "curator-08"}
+{"id": "q-inventor-01", "question": "Who invented the Orchid-4 coolant?", "answer": "Rhea Calder", "evidence_id": "inventor-01"}
+{"id": "q-inventor-02", "question": "Who invented the Pulsar-8 lubricant?", "answer": "Marek Tovin", "evidence_id": "inventor-02"}
+{"id": "q-inventor-03", "question": "Who invented the Quartz-2 catalyst?", "answer": "Nina Sel", "evidence_id": "inventor-03"}
+{"id": "q-inventor-04", "question": "Who invented the Radian-5 alloy?", "answer": "Jonas Mire", "evidence_id": "inventor-04"}
+{"id": "q-inventor-05", "question": "Who invented the Solace-9 membrane?", "answer": "Ari Venn", "evidence_id": "inventor-05"}
+{"id": "q-inventor-06", "question": "Who invented the Tundra-3 sealant?", "answer": "Mila Koren", "evidence_id": "inventor-06"}
+{"id": "q-inventor-07", "question": "Who invented the Umber-6 ceramic?", "answer": "Theo Rask", "evidence_id": "inventor-07"}
+{"id": "q-inventor-08", "question": "Who invented the Violet-7 coolant?", "answer": "Lora Dey", "evidence_id": "inventor-08"}
+{"id": "q-island-01", "question": "On which island does Westhaven Observatory stand?", "answer": "Pelion Island", "evidence_id": "island-01"}
+{"id": "q-island-02", "question": "On which island does Xeric Lighthouse stand?", "answer": "Neris Island", "evidence_id": "island-02"}
+{"id": "q-island-03", "question": "On which island does Yonder Research Dome stand?", "answer": "Calder Island", "evidence_id": "island-03"}
+{"id": "q-island-04", "question": "On which island does Zeal Weather Station stand?", "answer": "Orin Island", "evidence_id": "island-04"}
+{"id": "q-island-05", "question": "On which island does Aster Radio Tower stand?", "answer": "Vela Island", "evidence_id": "island-05"}
+{"id": "q-island-06", "question": "On which island does Beryl Marine Lab stand?", "answer": "Soren Island", "evidence_id": "island-06"}
+{"id": "q-island-07", "question": "On which island does Cedar Skywatch stand?", "answer": "Tarin Island", "evidence_id": "island-07"}
+{"id": "q-island-08", "question": "On which island does Drift Signal Post stand?", "answer": "Maren Island", "evidence_id": "island-08"}
+{"id": "q-backup-01", "question": "How often does the Ember Ledger write an off-site backup?", "answer": "every 19 minutes", "evidence_id": "backup-01"}
+{"id": "q-backup-02", "question": "How often does the Fallow Registry write an off-site backup?", "answer": "every 23 minutes", "evidence_id": "backup-02"}
+{"id": "q-backup-03", "question": "How often does the Granite Journal write an off-site backup?", "answer": "every 31 minutes", "evidence_id": "backup-03"}
+{"id": "q-backup-04", "question": "How often does the Horizon Catalog write an off-site backup?", "answer": "every 17 minutes", "evidence_id": "backup-04"}
+{"id": "q-backup-05", "question": "How often does the Indigo Record write an off-site backup?", "answer": "every 29 minutes", "evidence_id": "backup-05"}
+{"id": "q-backup-06", "question": "How often does the Jasper Logbook write an off-site backup?", "answer": "every 13 minutes", "evidence_id": "backup-06"}
+{"id": "q-backup-07", "question": "How often does the Kindle Archive write an off-site backup?", "answer": "every 37 minutes", "evidence_id": "backup-07"}
+{"id": "q-backup-08", "question": "How often does the Lattice Ledger write an off-site backup?", "answer": "every 41 minutes", "evidence_id": "backup-08"}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -69,6 +70,9 @@ def main() -> None:
     parser.add_argument("--grpo-results", required=True)
     parser.add_argument("--metrics", required=True)
     parser.add_argument("--markdown", required=True)
+    parser.add_argument("--retriever-preflight", required=True)
+    parser.add_argument("--min-examples", type=int, default=50)
+    parser.add_argument("--require-pass", action="store_true")
     args = parser.parse_args()
 
     rows = read_jsonl(args.base_results) + read_jsonl(args.grpo_results)
@@ -85,6 +89,14 @@ def main() -> None:
                 f"unbalanced quadrant {quadrant}: "
                 f"expected {expected_count}, got {len(grouped[quadrant])}"
             )
+
+    required_fields = {
+        "id", "question", "answer", "evidence_id", "prediction", "trajectory",
+        "search_events", "generated_search_count", "retriever_request_count",
+        "input_token_count", "output_token_count", "latency_seconds", "model_label", "mode",
+    }
+    expected_ids = {row["id"] for row in grouped[QUADRANTS[0]]}
+    preflight = json.loads(Path(args.retriever_preflight).read_text(encoding="utf-8"))
 
     metrics: dict[str, dict[str, float]] = {}
     failures: dict[str, dict[str, int]] = {}
@@ -111,12 +123,36 @@ def main() -> None:
         for metric in ("exact_match", "token_f1")
     }
 
+    checks = {
+        "minimum_examples": expected_count >= args.min_examples,
+        "balanced_quadrants": all(len(grouped[item]) == expected_count for item in QUADRANTS),
+        "identical_question_ids": all(
+            {row["id"] for row in grouped[item]} == expected_ids for item in QUADRANTS
+        ),
+        "required_fields": all(required_fields <= row.keys() for row in rows),
+        "nonempty_trajectories": all(bool(row["trajectory"].strip()) for row in rows),
+        "finite_metrics": all(
+            math.isfinite(value)
+            for item in metrics.values()
+            for value in item.values()
+        ),
+        "no_search_has_no_requests": all(
+            row["retriever_request_count"] == 0 for row in rows if row["mode"] == "no-search"
+        ),
+        "failures_classified": all(
+            sum(failures[quadrant_id(*item)].values()) == expected_count for item in QUADRANTS
+        ),
+        "retriever_preflight": bool(preflight.get("passed")),
+    }
+    acceptance = {"passed": all(checks.values()), "checks": checks}
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "examples_per_quadrant": expected_count,
         "metrics": metrics,
         "observed_differences": effects,
         "outcomes": failures,
+        "retriever_preflight": preflight,
+        "acceptance": acceptance,
     }
     metrics_path = Path(args.metrics)
     metrics_path.parent.mkdir(parents=True, exist_ok=True)
@@ -201,17 +237,31 @@ def main() -> None:
     lines.extend(
         [
             "",
-            "## 初步结论",
+            "## 结论",
             "",
             f"- Base 在工具可用时的实际请求率为 {percentage(base_search_metrics['retriever_request_rate'])}；GRPO 为 {percentage(grpo_search_metrics['retriever_request_rate'])}。",
+            f"- 两个 search 组的条件 Hit@1/Hit@3 都是 100%，但 Base Contains 为 {percentage(base_search_metrics['answer_contains'])}，GRPO 为 {percentage(grpo_search_metrics['answer_contains'])}。",
+            "- 因此差异主要来自是否稳定调用工具以及能否利用返回证据，而不是底层索引本身。",
             f"- GRPO 开启搜索相对关闭搜索的观察差异：EM {points(effects['grpo_retriever_enabled']['exact_match'])}，F1 {points(effects['grpo_retriever_enabled']['token_f1'])}。",
             f"- 开启搜索时 GRPO 相对 Base 的观察差异：EM {points(effects['grpo_minus_base_search']['exact_match'])}，F1 {points(effects['grpo_minus_base_search']['token_f1'])}。",
             "",
             "## 结论边界",
             "",
-            "- 当前是 8 条合成问题的 Stage 01 pilot，只能验证四象限链路和形成初步观察。",
+            f"- 当前使用 {expected_count} 条固定合成问题，可完成 Stage 01 链路验收，但不能代表真实任务泛化能力。",
             "- 工具可用不等于模型实际调用工具；Retriever 收益必须结合请求率解释。",
-            "- 观察差异不是严格因果归因，下一步需扩展固定数据集并检查多随机种子或采样稳定性。",
+            "- 观察差异不是严格因果归因，后续仍需真实数据集和多随机种子验证。",
+            "",
+            "## 最终验收",
+            "",
+            f"- Status: {'PASS' if acceptance['passed'] else 'FAIL'}",
+            f"- Retriever preflight: Hit@1 {percentage(preflight['hit_at_1'])}, Hit@3 {percentage(preflight['hit_at_3'])}",
+            "",
+        ]
+    )
+    for check_name, passed in checks.items():
+        lines.append(f"- [{'x' if passed else ' '}] {check_name}")
+    lines.extend(
+        [
             "",
             "## Per-question outcomes",
             "",
@@ -235,6 +285,8 @@ def main() -> None:
     markdown_path.write_text("\n".join(lines), encoding="utf-8")
     print(json.dumps(payload, indent=2))
     print(f"wrote report: {markdown_path}")
+    if args.require_pass and not acceptance["passed"]:
+        raise SystemExit("Stage 01 acceptance failed")
 
 
 if __name__ == "__main__":

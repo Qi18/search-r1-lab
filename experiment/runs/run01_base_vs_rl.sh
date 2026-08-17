@@ -6,12 +6,13 @@ source "${LAB_ROOT}/env.sh"
 
 RUN_NAME="${RUN_NAME:-01-base-vs-rl}"
 RUN_DIR="${SEARCH_R1_LAB_CACHE}/experiments/${RUN_NAME}"
-INDEX_DIR="${SEARCH_R1_LAB_CACHE}/indexes/synthetic-e5-small-v2"
-CORPUS="${LAB_ROOT}/data/corpus.jsonl"
-EVAL_DATA="${LAB_ROOT}/data/eval.jsonl"
+INDEX_DIR="${SEARCH_R1_LAB_CACHE}/indexes/stage01-fixed64-e5-small-v2"
+CORPUS="${LAB_ROOT}/data/stage01/corpus.jsonl"
+EVAL_DATA="${LAB_ROOT}/data/stage01/eval.jsonl"
 BASE_RESULTS="${RUN_DIR}/qwen-base.jsonl"
 GRPO_RESULTS="${RUN_DIR}/search-r1-grpo.jsonl"
 METRICS="${RUN_DIR}/metrics.json"
+RETRIEVER_PREFLIGHT="${RUN_DIR}/retriever-preflight.json"
 REPORT="${LAB_ROOT}/results/01-base-vs-rl/results.md"
 
 mkdir -p "${RUN_DIR}" "${INDEX_DIR}"
@@ -19,6 +20,12 @@ mkdir -p "${RUN_DIR}" "${INDEX_DIR}"
 for model_path in "${SEARCH_R1_BASE_MODEL_PATH}" "${SEARCH_R1_MODEL_PATH}"; do
   test -f "${model_path}/config.json" || {
     echo "missing model: ${model_path}" >&2
+    exit 1
+  }
+done
+for data_path in "${CORPUS}" "${EVAL_DATA}"; do
+  test -f "${data_path}" || {
+    echo "missing data: ${data_path}" >&2
     exit 1
   }
 done
@@ -40,6 +47,17 @@ python3 -u "${LAB_ROOT}/scripts/build_index.py" \
   --model "${SEARCH_R1_RETRIEVER_MODEL}" \
   --device cpu \
   2>&1 | tee "${RUN_DIR}/build_index.log"
+
+python3 -u "${LAB_ROOT}/scripts/check_retriever.py" \
+  --corpus "${CORPUS}" \
+  --eval "${EVAL_DATA}" \
+  --index "${INDEX_DIR}/e5_Flat.index" \
+  --model "${SEARCH_R1_RETRIEVER_MODEL}" \
+  --device cpu \
+  --topk 3 \
+  --min-hit-at-3 0.95 \
+  --output "${RETRIEVER_PREFLIGHT}" \
+  2>&1 | tee "${RUN_DIR}/retriever-preflight.log"
 
 CUDA_VISIBLE_DEVICES=0 python3 -u "${LAB_ROOT}/scripts/run_eval.py" \
   --model "${SEARCH_R1_BASE_MODEL_PATH}" \
@@ -77,7 +95,10 @@ python3 -u "${LAB_ROOT}/scripts/summarize_stage01.py" \
   --base-results "${BASE_RESULTS}" \
   --grpo-results "${GRPO_RESULTS}" \
   --metrics "${METRICS}" \
+  --retriever-preflight "${RETRIEVER_PREFLIGHT}" \
   --markdown "${REPORT}" \
+  --min-examples 50 \
+  --require-pass \
   2>&1 | tee "${RUN_DIR}/summarize.log"
 
 echo "experiment complete: ${RUN_DIR}"
