@@ -21,7 +21,8 @@
 - 官方 Search-R1 基线：`598e61bd1d36895726d28a8d06b3a15bed19f5d3`；
 - 实验分支：`experiment`；
 - 已缓存模型：`/data/cache/search-r1/models/SearchR1-qwen2.5-3b-em-grpo`；
-- 模型与运行缓存约 13 GB；
+- Base 模型：`/data/cache/search-r1/models/Qwen2.5-3B`；
+- 两个模型权重合计约 19 GB；
 - 当前实验单测：5 passed。
 
 ### 已完成的 Stage 00 结果
@@ -96,7 +97,23 @@ bash experiment/runs/runsmoke.sh
 | Search-R1 GRPO | disabled | 测量 RL 对直接回答的影响 |
 | Search-R1 GRPO | enabled | 测量完整 Search-R1 效果 |
 
-先复用现有 8 条合成数据校验脚本，再扩展到 50-200 条固定 QA。
+8 条合成数据 pilot 已完成，下一步扩展到 50-200 条固定 QA。
+
+### Pilot 结果（2026-08-17）
+
+| Model | Retriever | EM | Contains | Valid | Request | Hit@3 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 75.0% | 0.0% | 0.0% |
+| Qwen2.5-3B Base | enabled | 12.5% | 62.5% | 75.0% | 75.0% | 83.3% |
+| Search-R1 GRPO | disabled | 0.0% | 0.0% | 100.0% | 0.0% | 0.0% |
+| Search-R1 GRPO | enabled | 62.5% | 100.0% | 100.0% | 100.0% | 100.0% |
+
+初步观察：
+
+- 开启搜索时，GRPO 相对 Base 的 EM 高 50.0 个百分点、F1 高 53.9 个百分点；
+- Base 只有 6/8 样本实际请求 Retriever，其中 5/6 命中目标证据；
+- GRPO 的协议有效率、请求率和 Hit@3 都是 100%；
+- Pilot 链路已完成，但 Base 有 2 条格式失败，且样本量只有 8 条，Stage 01 尚未最终验收。
 
 ### 必须保持不变的控制变量
 
@@ -137,7 +154,7 @@ bash experiment/runs/runsmoke.sh
 建议文件：
 
 ```text
-experiment/runs/run01_tiny_grpo.sh
+experiment/runs/run02_tiny_grpo.sh
 experiment/results/02-tiny-grpo/
 ├── README.md
 ├── config.md
@@ -381,10 +398,9 @@ Git 只保存源码、小型固定数据、配置和总结。模型、索引、�
 
 ## 下一步
 
-当前唯一主任务是 Stage 01：
+Stage 01 pilot 已完成，当前主任务是扩大评测规模：
 
-1. 修正 Stage 00 的搜索调用指标语义；
-2. 加入 Qwen2.5-3B Base；
-3. 实现四象限评测；
-4. 生成 `experiment/results/01-base-vs-rl/results.md`；
-5. 通过验收后再开始 Tiny GRPO。
+1. 准备 50-200 条固定 QA 与对应证据语料；
+2. 重跑四象限并检查格式失败、请求率和 Hit@1/Hit@3；
+3. 对失败样本做协议、检索和答案三层归因；
+4. Stage 01 通过验收后再开始 Tiny GRPO。

@@ -2,9 +2,10 @@
 
 ## Current status
 
-The repository baseline is initialized on L20-Server. The reference experiment
-is `runs/runsmoke.sh`, following the same operational pattern as NanoChat:
-one ordered shell pipeline, unbuffered Python output, cache isolation, explicit
+The repository baseline and Stage 01 pilot are initialized on L20-Server. The
+reference experiments are `runs/runsmoke.sh` and `runs/run01_base_vs_rl.sh`,
+following the same operational pattern as NanoChat: ordered shell pipelines,
+unbuffered Python output, cache isolation, explicit
 acceptance gates, and a checked-in result summary.
 
 Environment:
@@ -56,3 +57,27 @@ index, questions, and metrics while avoiding cross-device CUDA state.
 Detailed outcomes are in
 `experiment/results/00-search-smoke/results.md`. Large artifacts are under
 `/data/cache/search-r1-lab/experiments/00-search-smoke`.
+
+## Stage 01 pilot
+
+使用同一组 8 条问题、Prompt、Retriever、Top-3、greedy decoding、Token 上限和 GPU，完成 Base/GRPO 与 Retriever 开关四象限：
+
+| Model | Retriever | EM | Contains | Valid | Request | Hit@3 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 75.0% | 0.0% | 0.0% |
+| Qwen2.5-3B Base | enabled | 12.5% | 62.5% | 75.0% | 75.0% | 83.3% |
+| Search-R1 GRPO | disabled | 0.0% | 0.0% | 100.0% | 0.0% | 0.0% |
+| Search-R1 GRPO | enabled | 62.5% | 100.0% | 100.0% | 100.0% | 100.0% |
+
+### 初步结论
+
+- Base 可以使用搜索工具，但协议不稳定：2/8 没有合法答案，实际请求率为 75%；
+- GRPO 的格式有效率、请求率和 Hit@3 都达到 100%；
+- 开启搜索时，GRPO 相对 Base 的观察差异为 EM +50.0、F1 +53.9 个百分点；
+- 关闭搜索时两者 EM 都为 0%，当前优势主要体现在搜索协议执行和证据利用，而不是合成事实的内部记忆。
+
+### 状态边界
+
+Stage 01 pilot 链路已完成，但 8 条合成数据不足以完成最终归因。下一步先扩展到 50-200 条固定 QA，再决定是否进入 Tiny GRPO。
+
+详细结果位于 `experiment/results/01-base-vs-rl/results.md`，完整轨迹和日志位于 `/data/cache/search-r1-lab/experiments/01-base-vs-rl`。

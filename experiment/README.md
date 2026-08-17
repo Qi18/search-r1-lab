@@ -6,10 +6,13 @@
 
 ```bash
 source experiment/env.sh
+# Stage 00
 bash experiment/runs/runsmoke.sh
+# Stage 01
+bash experiment/runs/run01_base_vs_rl.sh
 ```
 
-默认使用 1 张 GPU 运行 Search-R1 Qwen2.5-3B，E5 Retriever 在 CPU 上运行。
+默认使用 1 张 GPU 顺序运行 Qwen2.5-3B Base 和 Search-R1 GRPO，E5 Retriever 在 CPU 上运行。
 
 ## 目录作用
 
@@ -31,9 +34,11 @@ bash experiment/runs/runsmoke.sh
 | 文件 | 作用 |
 | --- | --- |
 | `runs/runsmoke.sh` | 串联环境检查、索引、推理、评测和报告 |
+| `runs/run01_base_vs_rl.sh` | 运行 Base/GRPO 与 Retriever 开关四象限 |
 | `scripts/build_index.py` | 使用 E5 + FAISS 构建检索索引 |
 | `scripts/run_eval.py` | 运行 no-search/search 轨迹 |
 | `scripts/summarize.py` | 生成 EM、F1、Hit@k 等指标 |
+| `scripts/summarize_stage01.py` | 汇总四象限差异和失败类型 |
 | `search_r1_lab/agent.py` | 控制搜索、观察和回答的 Agent 循环 |
 | `search_r1_lab/protocol.py` | 解析 `<search>` 和 `<answer>` 协议 |
 | `search_r1_lab/retrieval.py` | 构建和查询向量索引 |
@@ -50,6 +55,7 @@ Git 只保存源码、小型数据、配置和结果摘要。模型、Checkpoint
 README.md
   -> TRAINING_PLAN.md
   -> runs/runsmoke.sh
+  -> runs/run01_base_vs_rl.sh
   -> search_r1_lab/agent.py
   -> search_r1_lab/protocol.py
   -> search_r1_lab/retrieval.py

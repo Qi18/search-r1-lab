@@ -82,9 +82,12 @@ class SearchR1Agent:
         transcript = ""
         search_events: list[dict] = []
         start = time.perf_counter()
+        input_token_count = 0
+        output_token_count = 0
 
         for turn in range(self.config.max_search_turns + 1):
             encoded = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+            input_token_count += int(encoded["input_ids"].shape[1])
             output = self.model.generate(
                 **encoded,
                 max_new_tokens=self.config.max_new_tokens,
@@ -92,9 +95,10 @@ class SearchR1Agent:
                 stopping_criteria=self.stop,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
+            generated_tokens = output[0, encoded["input_ids"].shape[1] :]
+            output_token_count += int(generated_tokens.shape[0])
             generated = self.tokenizer.decode(
-                output[0, encoded["input_ids"].shape[1] :],
-                skip_special_tokens=True,
+                generated_tokens, skip_special_tokens=True,
             )
             generated = trim_to_first_action(generated)
             transcript += generated
@@ -137,5 +141,7 @@ class SearchR1Agent:
             "search_events": search_events,
             "generated_search_count": len(search_events),
             "retriever_request_count": retriever_request_count,
+            "input_token_count": input_token_count,
+            "output_token_count": output_token_count,
             "latency_seconds": time.perf_counter() - start,
         }

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 from search_r1_lab.agent import AgentConfig, SearchR1Agent
 from search_r1_lab.io import read_jsonl, write_jsonl
@@ -10,6 +11,7 @@ from search_r1_lab.retrieval import DenseRetriever
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
+    parser.add_argument("--model-label")
     parser.add_argument("--corpus", required=True)
     parser.add_argument("--eval", required=True)
     parser.add_argument("--index", required=True)
@@ -55,7 +57,8 @@ def main() -> None:
                     **example,
                     **result,
                     "mode": mode,
-                    "model": args.model,
+                    "model_path": args.model,
+                    "model_label": args.model_label or Path(args.model).name,
                     "topk": args.topk,
                 }
             )

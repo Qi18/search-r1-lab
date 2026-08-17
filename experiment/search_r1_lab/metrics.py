@@ -38,16 +38,17 @@ def token_f1(prediction: str, answer: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
-def retrieval_hit(record: dict) -> float:
+def retrieval_hit(record: dict, k: int | None = None) -> float:
     expected = record.get("evidence_id")
     if not expected:
         return 0.0
-    retrieved = {
-        result.get("id")
-        for event in record.get("search_events", [])
-        for result in event.get("results", [])
-    }
-    return float(expected in retrieved)
+    for event in record.get("search_events", []):
+        results = event.get("results", [])
+        if k is not None:
+            results = results[:k]
+        if expected in {result.get("id") for result in results}:
+            return 1.0
+    return 0.0
 
 
 def compute_metrics(records: list[dict]) -> dict[str, dict[str, float]]:
@@ -58,6 +59,8 @@ def compute_metrics(records: list[dict]) -> dict[str, dict[str, float]]:
     summary: dict[str, dict[str, float]] = {}
     for mode, rows in grouped.items():
         count = len(rows)
+        requested_rows = [row for row in rows if row["retriever_request_count"] > 0]
+        requested_count = len(requested_rows)
         summary[mode] = {
             "examples": count,
             "exact_match": sum(exact_match(row["prediction"], row["answer"]) for row in rows) / count,
@@ -66,8 +69,21 @@ def compute_metrics(records: list[dict]) -> dict[str, dict[str, float]]:
             "valid_answer_rate": sum(has_valid_answer(row["trajectory"]) for row in rows) / count,
             "generated_search_tag_rate": sum(row["generated_search_count"] > 0 for row in rows) / count,
             "retriever_request_rate": sum(row["retriever_request_count"] > 0 for row in rows) / count,
-            "retrieval_hit_rate": sum(retrieval_hit(row) for row in rows) / count,
+            "retrieval_hit_rate": (
+                sum(retrieval_hit(row) for row in requested_rows) / requested_count
+                if requested_count else 0.0
+            ),
+            "retrieval_hit_at_1": (
+                sum(retrieval_hit(row, 1) for row in requested_rows) / requested_count
+                if requested_count else 0.0
+            ),
+            "retrieval_hit_at_3": (
+                sum(retrieval_hit(row, 3) for row in requested_rows) / requested_count
+                if requested_count else 0.0
+            ),
             "avg_search_turns": sum(row["generated_search_count"] for row in rows) / count,
+            "avg_input_tokens": sum(row.get("input_token_count", 0) for row in rows) / count,
+            "avg_output_tokens": sum(row.get("output_token_count", 0) for row in rows) / count,
             "avg_latency_seconds": sum(row["latency_seconds"] for row in rows) / count,
         }
     return summary

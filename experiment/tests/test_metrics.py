@@ -21,11 +21,26 @@ class MetricsTest(unittest.TestCase):
                 "search_events": [
                     {
                         "retriever_requested": True,
-                        "results": [{"id": "orilon"}],
+                        "results": [{"id": "other"}, {"id": "orilon"}],
                     }
                 ],
                 "evidence_id": "orilon",
                 "latency_seconds": 1.0,
+                "input_token_count": 100,
+                "output_token_count": 20,
+            },
+            {
+                "mode": "search",
+                "prediction": "unknown",
+                "answer": "Mira Voss",
+                "trajectory": "<answer>unknown</answer>",
+                "generated_search_count": 0,
+                "retriever_request_count": 0,
+                "search_events": [],
+                "evidence_id": "orilon",
+                "latency_seconds": 1.0,
+                "input_token_count": 50,
+                "output_token_count": 5,
             },
             {
                 "mode": "no-search",
@@ -42,17 +57,24 @@ class MetricsTest(unittest.TestCase):
                 ],
                 "evidence_id": "orilon",
                 "latency_seconds": 1.0,
+                "input_token_count": 80,
+                "output_token_count": 10,
             }
         ]
         search = compute_metrics(rows)["search"]
         no_search = compute_metrics(rows)["no-search"]
-        self.assertEqual(search["exact_match"], 1.0)
-        self.assertEqual(search["generated_search_tag_rate"], 1.0)
-        self.assertEqual(search["retriever_request_rate"], 1.0)
+        self.assertEqual(search["exact_match"], 0.5)
+        self.assertEqual(search["generated_search_tag_rate"], 0.5)
+        self.assertEqual(search["retriever_request_rate"], 0.5)
         self.assertEqual(search["retrieval_hit_rate"], 1.0)
+        self.assertEqual(search["retrieval_hit_at_1"], 0.0)
+        self.assertEqual(search["retrieval_hit_at_3"], 1.0)
+        self.assertEqual(search["avg_input_tokens"], 75.0)
+        self.assertEqual(search["avg_output_tokens"], 12.5)
         self.assertEqual(no_search["generated_search_tag_rate"], 1.0)
         self.assertEqual(no_search["retriever_request_rate"], 0.0)
         self.assertEqual(no_search["retrieval_hit_rate"], 0.0)
+        self.assertEqual(no_search["retrieval_hit_at_3"], 0.0)
 
 
 if __name__ == "__main__":
