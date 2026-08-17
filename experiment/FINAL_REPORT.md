@@ -32,10 +32,20 @@ Environment:
 | Search disabled | 0.0% | 0.0% | 3.1% | 100.0% | 0.0% | 0.0% |
 | Search enabled | 62.5% | 100.0% | 83.3% | 100.0% | 100.0% | 100.0% |
 
-Enabling retrieval improved exact match by 62.5 percentage points and token F1
-by 80.2 points. Three search-enabled answers contained the exact gold fact plus
-extra wording, so answer containment reached 100% while strict EM was 62.5%.
-The split metrics confirm that no-search still expresses search intent but never executes the tool.
+## 结论
+
+- 搜索链路有效：search 模式真实调用 Retriever，8 条问题全部命中目标证据；
+- 检索显著改善答案：EM 提升 62.5 个百分点，F1 提升 80.2 个百分点；
+- 当前 Search-R1 checkpoint 有明确搜索倾向：两种模式都生成搜索动作，但 no-search 不执行工具调用；
+- search 的 Contains 为 100%，高于 EM 的 62.5%，差异主要来自答案中的额外措辞。
+
+## 结论边界
+
+- 本阶段只比较同一个 Search-R1 GRPO checkpoint 是否启用 Retriever，不能单独证明 RL 的收益；
+- 数据只有 8 条确定性合成问题，且 Retriever 命中率为 100%，不能代表真实任务泛化能力；
+- no-search 是禁用工具的搜索模型，不等同于 Qwen Base；模型、Retriever 和 RL 的贡献需要 Stage 01 四象限实验拆分。
+
+## 实现说明
 
 The first implementation placed Qwen on GPU0 and E5 on GPU1 in one Python
 process. After the no-search leg, the first E5 query failed with
