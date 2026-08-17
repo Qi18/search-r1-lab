@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import itertools
+import json
+import threading
+from pathlib import Path
 from typing import Optional
 
 import uvicorn
@@ -25,6 +29,7 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8012)
     parser.add_argument("--topk", type=int, default=3)
+    parser.add_argument("--request-log")
     args = parser.parse_args()
 
     retriever = DenseRetriever(
@@ -34,6 +39,8 @@ def main() -> None:
         device=args.device,
     )
     app = FastAPI()
+    request_counter = itertools.count()
+    request_lock = threading.Lock()
 
     @app.get("/health")
     def health() -> dict:
@@ -54,6 +61,18 @@ def main() -> None:
                     for row in results
                 ]
             )
+        if args.request_log:
+            record = {
+                "request_id": next(request_counter),
+                "queries": request.queries,
+                "topk": topk,
+                "result_ids": [
+                    [row["document"]["id"] for row in batch] for batch in batches
+                ],
+            }
+            with request_lock:
+                with Path(args.request_log).open("a") as handle:
+                    handle.write(json.dumps(record, ensure_ascii=False) + "\n")
         return {"result": batches}
 
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
