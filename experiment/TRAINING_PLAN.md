@@ -133,7 +133,7 @@ bash experiment/runs/runsmoke.sh
 - 每组至少拥有完全相同的有效样本数；
 - 能定量分离 Retriever 收益和 RL 策略收益；
 - 每个失败样本都能回看 Prompt、动作、观察和答案；
-- 结果写入 `experiment/learning/experiments/01-base-vs-rl/results.md`。
+- 结果写入 `experiment/results/01-base-vs-rl/results.md`。
 
 ## Stage 02：Tiny GRPO
 
@@ -145,7 +145,7 @@ bash experiment/runs/runsmoke.sh
 
 ```text
 experiment/runs/run01_tiny_grpo.sh
-experiment/learning/experiments/02-tiny-grpo/
+experiment/results/02-tiny-grpo/
 ├── README.md
 ├── config.md
 ├── metrics.json
@@ -213,7 +213,7 @@ preflight
 - Checkpoint 能被 Stage 00/01 评测器重新加载；
 - 训练前后使用同一冻结验证集对比；
 - 至少保存一个成功轨迹和一个失败轨迹；
-- 结果写入 `experiment/learning/experiments/02-tiny-grpo/results.md`。
+- 结果写入 `experiment/results/02-tiny-grpo/results.md`。
 
 ## Stage 03：Agent RL 消融
 
@@ -246,7 +246,7 @@ Tiny GRPO 通过后，每次只改变一个变量。
 - 至少运行 3 个随机种子或明确标记单次试验；
 - 保存配置、聚合指标和代表性轨迹；
 - 结论包含收益、代价和失败边界；
-- 结果写入 `experiment/learning/experiments/03-ablations/`。
+- 结果写入 `experiment/results/03-ablations/`。
 
 ## Stage 04：NQ/HotpotQA 规模复现
 
@@ -393,5 +393,5 @@ Git 只保存源码、小型固定数据、配置和总结。模型、索引、�
 1. 修正 Stage 00 的搜索调用指标语义；
 2. 加入 Qwen2.5-3B Base；
 3. 实现四象限评测；
-4. 生成 `experiment/learning/experiments/01-base-vs-rl/results.md`；
+4. 生成 `experiment/results/01-base-vs-rl/results.md`；
 5. 通过验收后再开始 Tiny GRPO。

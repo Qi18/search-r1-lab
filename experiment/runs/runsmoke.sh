@@ -11,7 +11,7 @@ CORPUS="${LAB_ROOT}/data/corpus.jsonl"
 EVAL_DATA="${LAB_ROOT}/data/eval.jsonl"
 RESULTS="${RUN_DIR}/trajectories.jsonl"
 METRICS="${RUN_DIR}/metrics.json"
-REPORT="${LAB_ROOT}/learning/experiments/00-search-smoke/results.md"
+REPORT="${LAB_ROOT}/results/00-search-smoke/results.md"
 
 mkdir -p "${RUN_DIR}" "${INDEX_DIR}"
 

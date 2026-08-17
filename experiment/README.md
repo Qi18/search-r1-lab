@@ -24,7 +24,7 @@ bash experiment/runs/runsmoke.sh
 | `scripts/` | 建索引、执行评测和汇总指标 |
 | `search_r1_lab/` | Agent、协议、Retriever、指标和 I/O 实现 |
 | `tests/` | 协议与指标回归测试 |
-| `learning/` | 源码笔记和分阶段实验结果 |
+| `results/` | 分阶段实验结果摘要 |
 
 ## 关键模块
 
@@ -54,7 +54,7 @@ README.md
   -> search_r1_lab/protocol.py
   -> search_r1_lab/retrieval.py
   -> search_r1_lab/metrics.py
-  -> learning/experiments/
+  -> results/
 ```
 
 ## References

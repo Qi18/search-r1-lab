@@ -42,5 +42,5 @@ GPU0 and runs the small E5 retriever on CPU. This preserves the retrieval model,
 index, questions, and metrics while avoiding cross-device CUDA state.
 
 Detailed outcomes are in
-`experiment/learning/experiments/00-search-smoke/results.md`. Large artifacts are under
+`experiment/results/00-search-smoke/results.md`. Large artifacts are under
 `/data/cache/search-r1-lab/experiments/00-search-smoke`.
