@@ -1,14 +1,29 @@
-# Stage 03: Agent RL 消融
+# Stage 03：可复现性门禁
 
-目标：解释 Stage 02 的提升来自哪里，而不是继续堆训练步数。
+状态：**PASS**。
 
-## 执行顺序
+Stage03 的作用是验证 seed 是否真正控制数据顺序和生成采样，并明确 FSDP/CUDA 的非位级确定边界。它不再提前执行官方 v0.3 消融。
 
-1. **03-0 可复现性门禁**：同 seed 重复 2-step，异 seed 运行 2-step；比较检索轨迹代理哈希和训练指标。
-2. **03-A 行为探针**：Base/GRPO 的 search on/off、topk 变化，仅评测不训练。
-3. **03-B 核心训练消融**：Base、`state_masking=false`、`state_masking=true`、格式奖励；每项三个 seed。
-4. **03-C 多跳实验**：换多跳数据后比较 `max_turns=1/2/3`，当前单跳固定语料不用于论证多轮搜索价值。
+## 已完成
 
-固定项：Qwen2.5-3B、train64/val32/corpus96、GRPO、batch32、`n_agent=4`、topk3、学习率 1e-6。
+1. 同 seed=3103 重复两次 2-step；
+2. 异 seed=3104 运行一次 2-step；
+3. 比较训练期 query、topk 和 result IDs 的轨迹哈希；
+4. 记录 reward、训练指标与训练后验证差异；
+5. 将 console 指标回放到 SwanLab。
 
-结果写入本目录；运行产物写入 `/data/cache/search-r1/experiments/03-ablations/`，不提交模型权重。
+固定配置：Qwen2.5-3B、train64/val32/corpus96、GRPO、batch32、`n_agent=4`、`max_turns=2`、topk3、lr 1e-6。
+
+## 旧计划迁移
+
+| 原 Stage03 项目 | 新位置 | 原因 |
+| --- | --- | --- |
+| Base/GRPO、Search on/off | Stage04 基线 | 与真实 NQ Preliminary 一起测 |
+| `state_masking=true/false` | Stage06 | 对应官方 v0.2 masking 修复 |
+| answer/format reward | Stage07 | 对应官方 v0.3 reward design |
+| Retriever/backbone/data scaling | Stage07 | 对应官方 v0.3 系统消融 |
+| 多跳、topk、噪声和故障 | Stage08 | 属于官方复现后的自定义扩展 |
+
+结果保留在本目录；目录名 `03-ablations` 作为历史路径不再改名。运行产物位于 `/data/cache/search-r1/experiments/03-ablations/`。
+
+下一步：Stage04-0，官方 NQ/Wiki-18/E5 数据和索引 preflight。

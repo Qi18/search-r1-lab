@@ -1,86 +1,53 @@
-# Search-R1 experiment report
+# Search-R1 当前实验报告
 
-## Current status
+更新时间：2026-08-18
 
-The repository baseline and Stage 01 pilot are initialized on L20-Server. The
-reference experiments are `runs/runsmoke.sh` and `runs/run01_base_vs_rl.sh`,
-following the same operational pattern as NanoChat: ordered shell pipelines,
-unbuffered Python output, cache isolation, explicit
-acceptance gates, and a checked-in result summary.
+## 当前结论
 
-Environment:
+Stage00–03 已完成，项目具备进入官方真实数据实验的条件：搜索闭环、四象限评测、Tiny GRPO、checkpoint 回载、seed 传递和实验验收均已打通。
 
-- compute: 8x NVIDIA L20, using GPU0 for Qwen and CPU for the small retriever;
-- language model: official Search-R1 Qwen2.5-3B GRPO checkpoint;
-- retriever: E5-small-v2 + FAISS Flat inner-product index;
-- corpus: eight deterministic synthetic documents;
-- evaluation: eight exact-answer questions;
-- large artifact root: `/data/cache/search-r1-lab`.
+下一阶段是官方 Preliminary 路线：NQ + Wikipedia/E5 Retriever + PPO 小步训练。
 
-## Verified run
+## 已完成阶段
 
-- five protocol and metric unit tests passed;
-- the full `runs/runsmoke.sh` chain completed;
-- all eight search queries retrieved the expected evidence in Top-3;
-- all sixteen trajectories used valid `<answer>` formatting;
-- every trajectory generated exactly one `<search>` action;
-- no-search made zero Retriever requests, while search made eight.
+| Stage | 关键结果 | 结论边界 |
+| --- | --- | --- |
+| 00 | search EM 62.5%，no-search EM 0%，Hit@3 100% | 只有 8 条合成问题 |
+| 01 | Base+Search EM 4.7%，官方 GRPO+Search EM 78.1% | 64 条合成事实，Retriever 条件命中率 100% |
+| 02 | 20-step 后冻结 val Search EM 28.125%，Base 为 6.25% | train64/val32，不能外推真实 QA |
+| 03 | 同 seed 训练轨迹哈希一致，异 seed 哈希变化 | GPU 更新不保证位级确定 |
 
-## Result
+## Stage03 可复现性边界
 
-| Mode | EM | Answer contains | F1 | Generated search | Retriever request | Hit@3 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Search disabled | 0.0% | 0.0% | 3.1% | 100.0% | 0.0% | 0.0% |
-| Search enabled | 62.5% | 100.0% | 83.3% | 100.0% | 100.0% | 100.0% |
+- seed=3103 的两次 2-step 训练期检索轨迹完全一致；reward 都为 `0.383 → 0.242`。
+- seed=3104 得到不同轨迹；reward 为 `0.617 → 0.672`。
+- 相同 seed 的训练后 val EM 为 0.34375 与 0.375，说明微小 CUDA/FSDP 数值差异会放大到生成结果。
+- 后续正式实验使用多个不同 seed 汇总均值/方差；相同 seed replica 不作为独立样本。
 
-## 结论
+## 路线调整
 
-- 搜索链路有效：search 模式真实调用 Retriever，8 条问题全部命中目标证据；
-- 检索显著改善答案：EM 提升 62.5 个百分点，F1 提升 80.2 个百分点；
-- 当前 Search-R1 checkpoint 有明确搜索倾向：两种模式都生成搜索动作，但 no-search 不执行工具调用；
-- search 的 Contains 为 100%，高于 EM 的 62.5%，差异主要来自答案中的额外措辞。
+原计划把 `state_masking`、format reward、Retriever 和模型规模消融提前放在 Stage03，同时把 NQ/PPO 放在最后。这与作者真实实验演进相反。
 
-## 结论边界
+现调整为：
 
-- 本阶段只比较同一个 Search-R1 GRPO checkpoint 是否启用 Retriever，不能单独证明 RL 的收益；
-- 数据只有 8 条确定性合成问题，且 Retriever 命中率为 100%，不能代表真实任务泛化能力；
-- no-search 是禁用工具的搜索模型，不等同于 Qwen Base；模型、Retriever 和 RL 的贡献需要 Stage 01 四象限实验拆分。
+```text
+04 Preliminary: NQ + PPO
+05 v0.1: 多数据集 + PPO/GRPO
+06 v0.2: masking + 1005 steps + 3B/7B/14B
+07 v0.3: reward/backbone/retriever/data scaling
+08 我们自己的鲁棒性扩展
+```
 
-## 实现说明
+Stage03 已按“可复现性门禁”收口。原 Stage03 的 format reward、Retriever 和规模消融移动到官方 v0.3 对应的 Stage07；多跳、噪声和故障注入移动到 Stage08。
 
-The first implementation placed Qwen on GPU0 and E5 on GPU1 in one Python
-process. After the no-search leg, the first E5 query failed with
-`CUDA error: invalid resource handle`. The final design keeps Qwen isolated on
-GPU0 and runs the small E5 retriever on CPU. This preserves the retrieval model,
-index, questions, and metrics while avoiding cross-device CUDA state.
+## 下一验收点
 
-Detailed outcomes are in
-`experiment/results/00-search-smoke/results.md`. Large artifacts are under
-`/data/cache/search-r1-lab/experiments/00-search-smoke`.
+Stage04-0 只做真实数据 preflight：
 
-## Stage 01 final acceptance
+1. 下载并校验官方 NQ/HotpotQA 数据；
+2. 下载并校验 Wiki-18 corpus 与 E5 index；
+3. 启动 Retriever，测 Hit@k、P50/P95 和资源占用；
+4. 估算 NQ PPO 1-step 的显存、时间和存储；
+5. preflight 通过后再启动训练。
 
-使用 64 条固定问题和证据，在相同 Prompt、Retriever、Top-3、greedy decoding、Token 上限和 GPU 下完成 256 条四象限轨迹：
-
-| Model | Retriever | EM | Contains | Valid | Request | Hit@3 |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 71.9% | 0.0% | 0.0% |
-| Qwen2.5-3B Base | enabled | 4.7% | 46.9% | 73.4% | 59.4% | 100.0% |
-| Search-R1 GRPO | disabled | 0.0% | 0.0% | 98.4% | 0.0% | 0.0% |
-| Search-R1 GRPO | enabled | 78.1% | 90.6% | 100.0% | 100.0% | 100.0% |
-
-### 结论
-
-- 开启搜索时，GRPO 相对 Base 的观察差异为 EM +73.4、F1 +66.1 个百分点；
-- 两个 search 组的条件 Hit@1/Hit@3 都是 100%，说明底层 Retriever 对已发出的查询均能返回目标证据；
-- Base 请求率只有 59.4%、Contains 为 46.9%，GRPO 则分别为 100% 和 90.6%；
-- 因此 GRPO checkpoint 的主要优势体现在稳定调用工具和利用返回证据；
-- 关闭搜索时两者 EM 都为 0%，该差异不是合成事实记忆造成的。
-
-### 验收
-
-Stage 01 状态为 PASS：每组 64 条、问题集合一致、轨迹完整、指标有限、失败已分类，Retriever 原问题预检 Hit@1/Hit@3 均为 100%。
-
-详细结果位于 `experiment/results/01-base-vs-rl/results.md`；固定数据位于 `experiment/data/stage01/`；完整轨迹、指标和日志位于 `/data/cache/search-r1-lab/experiments/01-base-vs-rl`。
-
-边界：64 条数据仍为合成事实，结果不能替代真实 NQ/HotpotQA 和多随机种子验证，也不能视为严格因果归因。
+详细结果位于 `experiment/results/`；大文件位于 `/data/cache/search-r1/`；训练指标同步到 SwanLab 项目 `Search-R1`。

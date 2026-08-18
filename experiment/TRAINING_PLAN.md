@@ -1,416 +1,164 @@
-# Search-R1 训练与学习方案
+# Search-R1 实验路线
 
 ## 目标
 
-以官方完整 Search-R1 代码为基座，按成本逐步增加的方式完成：
+以官方完整 Search-R1 为基座，先用低成本实验验证环境、评测、训练和可复现性，再严格按照作者的实验演进复现 Preliminary、v0.1、v0.2、v0.3。
 
-1. 理解搜索 Agent 的生成、工具调用和环境反馈闭环；
-2. 分离基础模型、Retriever 和 RL 策略各自的贡献；
-3. 在 8xL20 上跑通可回载、可评测的 Tiny GRPO；
-4. 通过消融实验理解 Search-R1 为什么有效；
-5. 最后再进行 NQ/HotpotQA 规模复现和 PPO 对照。
+原则：官方复现与自定义扩展分开；上一阶段未通过验收，不扩大数据、模型或训练步数。
 
-所有阶段必须独立可运行、可测量、可恢复。上一阶段未通过验收门槛时，不进入下一阶段。
+## 当前状态
 
-## 当前基线（2026-08-17）
-
-### 运行环境
-
-- GPU：8 x NVIDIA L20，每张约 46 GB；
-- 数据盘：`/data` 可用空间约 3.5 TB；
-- 官方 Search-R1 基线：`598e61bd1d36895726d28a8d06b3a15bed19f5d3`；
-- 实验分支：`experiment`；
-- 已缓存模型：`/data/cache/search-r1/models/SearchR1-qwen2.5-3b-em-grpo`；
-- Base 模型：`/data/cache/search-r1/models/Qwen2.5-3B`；
-- 两个模型权重合计约 19 GB；
-- 当前实验单测：5 passed。
-
-### 已完成的 Stage 00 结果
-
-参考命令：
-
-```bash
-source experiment/env.sh
-bash experiment/runs/runsmoke.sh
-```
-
-现有 8 条合成问题结果：
-
-| Mode | EM | Contains | F1 | Valid answer | Generated search | Retriever request | Hit@k | Avg turns |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| no-search | 0.0% | 0.0% | 3.1% | 100.0% | 100.0% | 0.0% | 0.0% | 1.00 |
-| search | 62.5% | 100.0% | 83.3% | 100.0% | 100.0% | 100.0% | 100.0% | 1.00 |
-
-模型在两种模式下都会生成搜索动作，但 no-search 没有调用 Retriever。该结果证明检索观察能够显著改善当前合成任务，但暂时不能直接证明 RL 策略本身贡献了多少。
+| Stage | 状态 | 作用 | 类型 |
+| --- | --- | --- | --- |
+| 00 | PASS | 搜索 Agent 链路冒烟 | 我们的前置门禁 |
+| 01 | PASS | Base/GRPO × Search on/off 四象限 | 我们的前置门禁 |
+| 02 | PASS | 1/5/20-step Tiny GRPO 与 checkpoint 回载 | 我们的前置门禁 |
+| 03 | PASS | seed 传递与可复现性边界 | 我们的前置门禁 |
+| 04 | NEXT | NQ + PPO 小步复现 | 官方 Preliminary |
+| 05 | PENDING | 多数据集 PPO/GRPO | 官方 v0.1 |
+| 06 | PENDING | masking、长训练、模型规模 | 官方 v0.2 |
+| 07 | PENDING | reward/backbone/retriever/data 消融 | 官方 v0.3 |
+| 08 | PENDING | 噪声、故障和新方法 | 我们的扩展 |
 
 ## 总体路线
 
 ```text
-00 inference smoke（已完成）
-  -> 01 Base vs RL 四象限评测（已完成）
-  -> 02 Tiny GRPO 训练
-  -> 03 Agent RL 消融
-  -> 04 NQ/HotpotQA 规模复现
-  -> 05 PPO 对照
+00 搜索闭环
+  -> 01 四象限归因
+  -> 02 Tiny GRPO
+  -> 03 可复现性门禁
+  -> 04 Preliminary: NQ + PPO
+  -> 05 v0.1: 多数据集 + PPO/GRPO
+  -> 06 v0.2: masking + 1005 steps + 3B/7B/14B
+  -> 07 v0.3: reward/backbone/retriever/data scaling
+  -> 08 自定义 Agent RL 扩展
 ```
 
-| 阶段 | 核心问题 | GPU | 主要产物 |
-| --- | --- | ---: | --- |
-| 00 | 搜索闭环是否真实工作 | 1 | 轨迹、EM/F1、检索指标 |
-| 01 | 检索与 RL 各贡献多少 | 1 | 四象限基线报告 |
-| 02 | GRPO 训练链路是否闭环 | 8 | 可回载 Checkpoint |
-| 03 | 哪些 Agent/RL 设计真正有效 | 8 | 消融矩阵和失败分析 |
-| 04 | 是否能复现官方任务趋势 | 8 | NQ/HotpotQA 结果 |
-| 05 | GRPO 与 PPO 的成本效果差异 | 8 | 算法对照报告 |
+## Stage 00：搜索闭环
 
-## Stage 00：补强推理 Smoke
+验证 `<search> → Retriever → <information> → <answer>` 真实工作，并区分模型生成搜索标签与环境实际调用工具。
 
-### 已验证语义
+- 数据：8 条固定合成 QA。
+- 结果：search EM 62.5%，no-search EM 0%；Hit@3 100%。
+- 产物：`results/00-search-smoke/`。
 
-- `generated_search_tag_rate`：模型是否生成 `<search>`；
-- `retriever_request_rate`：环境是否真实调用 Retriever；
-- `retrieval_hit_rate`：返回结果是否命中目标证据；
-- `valid_answer_rate`：轨迹是否包含合法 `<answer>`；
-- `avg_search_turns`：每条轨迹平均生成的搜索动作数。
+## Stage 01：四象限归因
 
-本次运行中，两种模式的搜索标签生成率均为 100%；no-search 的 Retriever 请求率为 0%，search 为 100%。旧 `Search calls` 指标混合了模型动作和工具调用，现已拆分。
+比较 Qwen2.5-3B Base / 官方 GRPO checkpoint 与 Search enabled / disabled，分离基础模型、Retriever 和 RL 行为的贡献。
 
-### 验收结果
-
-- 5 个单测通过；
-- 16 条 JSONL 轨迹完整；
-- 能区分搜索动作与 Retriever 请求；
-- search 模式 Hit@3 为 100%；
-- 无 CUDA OOM、NaN 或损坏结果；
-- 命令、日志、指标和报告均可恢复。
-
-## Stage 01：Base vs RL 四象限评测
-
-### 实验矩阵
-
-使用相同问题、Retriever、Prompt、采样参数和答案评分器：
-
-| Model | Retriever | 目的 |
-| --- | --- | --- |
-| Qwen2.5-3B Base | disabled | 测量模型原始知识 |
-| Qwen2.5-3B Base | enabled | 测量单纯增加检索的收益 |
-| Search-R1 GRPO | disabled | 测量 RL 对直接回答的影响 |
-| Search-R1 GRPO | enabled | 测量完整 Search-R1 效果 |
-
-最终验收使用 64 条固定 QA 和 64 条对应证据，四象限共 256 条轨迹。
-
-### 最终结果（2026-08-17）
-
-| Model | Retriever | EM | Contains | Valid | Request | Hit@3 |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Qwen2.5-3B Base | disabled | 0.0% | 0.0% | 71.9% | 0.0% | 0.0% |
-| Qwen2.5-3B Base | enabled | 4.7% | 46.9% | 73.4% | 59.4% | 100.0% |
-| Search-R1 GRPO | disabled | 0.0% | 0.0% | 98.4% | 0.0% | 0.0% |
-| Search-R1 GRPO | enabled | 78.1% | 90.6% | 100.0% | 100.0% | 100.0% |
-
-结论：
-
-- 开启搜索时，GRPO 相对 Base 的 EM 高 73.4 个百分点、F1 高 66.1 个百分点；
-- 两个 search 组的条件 Hit@1/Hit@3 都是 100%，但请求率分别是 59.4% 和 100%；
-- GRPO 的 Contains 为 90.6%，Base 为 46.9%，差异主要来自搜索协议执行和证据利用；
-- 关闭搜索时两者 EM 都为 0%，不能把差异解释为模型记住了合成事实。
-
-### 必须保持不变的控制变量
-
-- 问题集合和答案归一化；
-- Retriever 索引与 `topk`；
-- Prompt 模板；
-- `temperature`、最大生成长度；
-- 最大搜索轮数；
-- EM/F1 计算逻辑；
-- 运行硬件和批处理策略。
-
-### 输出指标
-
-- EM、Contains、F1；
-- 搜索标签生成率；
-- Retriever 实际调用率；
-- Hit@1、Hit@3；
-- 平均搜索轮数；
-- 平均输入/输出 Token；
-- 平均延迟；
-- 格式正确率；
-- 失败类型分布。
-
-### 验收门槛
-
-- 四组都能稳定生成完整轨迹；
-- 每组至少拥有完全相同的有效样本数；
-- 能定量分离 Retriever 收益和 RL 策略收益；
-- 每个失败样本都能回看 Prompt、动作、观察和答案；
-- 结果写入 `experiment/results/01-base-vs-rl/results.md`。
-
-### 验收结果
-
-- 状态：PASS；
-- 每个象限 64 条，问题 ID 完全一致；
-- 256 条轨迹字段完整、指标有限、失败均已分类；
-- Retriever 原问题预检 Hit@1/Hit@3 均为 100%；
-- no-search 没有真实 Retriever 请求；
-- corpus SHA-256：`22aaa02b9ea588dc29c938614d9ead1de96fca8806bddc4aa956c6b9316480d3`；
-- eval SHA-256：`d78eccf33a8dd99c27fbf8ffdcaf084e482e34efa54ba647a4e0da01e0590f0a`。
+- 数据：64 条固定合成 QA，四组共 256 条轨迹。
+- 结果：Base+Search EM 4.7%，GRPO+Search EM 78.1%。
+- 边界：Retriever 对已发出的查询都能命中，因此主要测协议执行和证据利用，不代表真实 QA 泛化。
+- 产物：`results/01-base-vs-rl/`。
 
 ## Stage 02：Tiny GRPO
 
-### 原则
+从 Qwen2.5-3B Base 出发，跑通官方 veRL/FSDP/vLLM/GRPO 主链路。
 
-不要直接修改官方 `train_grpo.sh`。新增独立入口并保留官方配置作为对照。
+- 数据：train64 / val32 / corpus96。
+- 训练：1、5、20 optimizer steps；batch32；`n_agent=4`；`max_turns=2`；topk3。
+- 验收：checkpoint 可保存、回载、评测；Reward/KL/Loss 有限；无 OOM、NaN、Ray 死锁。
+- 20-step 结果：冻结验证集 Search EM 从 6.25% 提升到 28.125%。
+- 产物：`results/02-tiny-grpo/`，大文件位于 `/data/cache/search-r1/experiments/02-tiny-grpo/`。
 
-建议文件：
+## Stage 03：可复现性门禁
 
-```text
-experiment/runs/run02_tiny_grpo.sh
-experiment/results/02-tiny-grpo/
-├── README.md
-├── config.md
-├── metrics.json
-├── results.md
-└── failure-cases.md
-```
+Stage03 不再提前承载官方 v0.3 消融，只负责证明后续实验中的 seed 是有效变量。
 
-大模型、Checkpoint、原始日志和轨迹继续放在：
+- 同 seed=3103 两次 2-step：训练期检索轨迹哈希一致，reward 都为 `0.383 → 0.242`。
+- 异 seed=3104：轨迹哈希变化，reward 为 `0.617 → 0.672`。
+- 边界：FSDP/CUDA 更新不是位级确定，同 seed 的训练后 val EM 为 0.34375 / 0.375。
+- 结论：正式实验使用不同 seed 统计均值/方差；同 seed replica 只做复现性诊断。
+- 产物：`results/03-ablations/`。
 
-```text
-/data/cache/search-r1/experiments/02-tiny-grpo/
-```
+## Stage 04：官方 Preliminary——NQ + PPO
 
-### 起始配置
+对应作者最早的实验：只在 Natural Questions 上用 PPO 做少量训练，先确认真实 Wikipedia 检索下能学出搜索行为。
 
-| 参数 | 建议值 |
-| --- | --- |
-| Base model | Qwen2.5-3B Base |
-| Train data | 64-128 QA |
-| Validation data | 32 QA |
-| GPU | 8 x L20 |
-| train_batch_size | 32 |
-| rollout.n_agent | 4 |
-| ppo_mini_batch_size | 32 |
-| ppo_micro_batch_size | 4 或 8 |
-| max_turns | 2 |
-| retriever.topk | 3 |
-| max_response_length | 256 |
-| max_obs_length | 256 |
-| actor learning rate | 1e-6 |
-| KL coefficient | 0.001 |
-| total_training_steps | 先 1，再 5，最后 20 |
-| save_freq | 10 |
-| test_freq | 5 |
+### 执行
 
-具体 batch 参数必须满足当前 veRL 的整除约束；如果配置检查失败，优先缩小 micro batch，不直接扩大训练规模。
+1. 下载官方 `nq_hotpotqa_train` 数据、Wiki-18 corpus 和 E5 index；记录版本与 SHA-256。
+2. 启动官方 Retriever Server，验收 NQ query 的 Hit@k 和延迟。
+3. 固定 NQ 验证集，跑 Qwen Base + Search 基线。
+4. 用 3B Base 跑 1-step、短程 PPO，再回载评测。
+5. 根据实测显存和每步耗时决定是否继续，不直接运行长任务。
 
-### 分级启动
+### 验收
 
-```text
-preflight
-  -> 1 optimizer step
-  -> 5 optimizer steps
-  -> 20 optimizer steps
-  -> checkpoint reload
-  -> pre/post evaluation
-```
+- 使用官方数据格式、Agent loop、Reward 和评测脚本；
+- PPO 的 Actor、Critic、Reference、Rollout 全部执行；
+- 训练前后使用同一 NQ 验证集；
+- 报告 EM/F1、搜索率、Hit@k、KL、显存和每步耗时。
 
-### 必须观察
+## Stage 05：官方 v0.1——多数据集 PPO/GRPO
 
-- Reward 均值、方差和分量；
-- KL、Policy Loss、Gradient Norm；
-- Rollout 长度和搜索次数；
-- 格式正确率；
-- Retriever 请求与命中率；
-- GPU 峰值显存；
-- 每步耗时；
-- Ray Worker 和 vLLM 健康状态。
+复现作者从 NQ 扩展到多数据集，并对比 PPO 与 GRPO 的阶段。
 
-### 验收门槛
+官方脚本基准：
 
-- 数据加载、Rollout、Reward、Advantage 和优化器全部执行；
-- Reward、KL 和 Loss 均为有限值；
-- 没有 OOM、NaN、Ray 死锁；
-- Checkpoint 能被 Stage 00/01 评测器重新加载；
-- 训练前后使用同一冻结验证集对比；
-- 至少保存一个成功轨迹和一个失败轨迹；
-- 结果写入 `experiment/results/02-tiny-grpo/results.md`。
+- `total_training_steps=305`
+- learning rate `1e-6`
+- `n_agent=5`
+- `max_turns=4`
+- Retriever topk3
+- `state_masking=true`
 
-## Stage 03：Agent RL 消融
+先在 NQ/HotpotQA 路线上对齐 PPO/GRPO，再扩展到论文中的七数据集评测。比较效果、稳定性、显存、吞吐和 checkpoint 成本。
 
-Tiny GRPO 通过后，每次只改变一个变量。
+## Stage 06：官方 v0.2——稳定性与规模
 
-### 优先实验
+复现作者修复 retrieved-token masking 和 GRPO sample indexing 后的长训练路线。
 
-1. Qwen Base vs Search-R1 GRPO；
-2. Retriever disabled vs enabled；
-3. `max_turns = 1 / 2 / 3`；
-4. `topk = 1 / 3 / 5`；
-5. `state_masking = true / false`；
-6. `n_agent = 2 / 4 / 8`；
-7. 只有答案奖励 vs 答案奖励加格式奖励；
-8. 正常检索结果 vs 注入噪声结果。
+- 先做 `state_masking=true/false` 回归，证明 observation token 不进入 policy loss 的影响；
+- 目标配置：`total_training_steps=1005`、lr `1e-6`、`n_agent=5`、`max_turns=4`、topk3；
+- 先完成 3B；7B/14B 只在 3B 时间、显存和恢复机制验收后启动；
+- 比较短训练与长训练的搜索率、EM/F1、KL 和训练稳定性。
 
-### 要回答的问题
+## Stage 07：官方 v0.3——系统消融
 
-- RL 学到的是搜索格式，还是搜索策略？
-- 模型是否会进行无意义的频繁搜索？
-- Retriever 质量下降时，模型能否纠错？
-- 哪些 Token 应进入策略梯度？
-- 多轮搜索是否真的优于单轮搜索？
-- Reward 改善来自答案正确，还是格式投机？
-- 更大的 rollout group 是否带来更可靠的相对优势？
+把原 Stage03 中过早规划的消融移动到这里，与作者第二篇论文保持一致。
 
-### 验收门槛
+### Reward design
 
-- 每个实验只有一个主要变量发生变化；
-- 至少运行 3 个随机种子或明确标记单次试验；
-- 保存配置、聚合指标和代表性轨迹；
-- 结论包含收益、代价和失败边界；
-- 结果写入 `experiment/results/03-ablations/`。
+- 只有答案 reward；
+- 答案 + format reward；
+- 官方格式配置：`structure_format_score=0.2`、`final_format_score=0.1`、`retrieval_score=0`；
+- v0.3 GRPO 学习率 `5e-7`。
 
-## Stage 04：NQ/HotpotQA 规模复现
+### LLM backbone
 
-仅在 Tiny GRPO 稳定后启动：
+- 通用 Base vs reasoning model；
+- 3B / 7B / 14B，资源允许后再考虑 32B。
 
-1. 处理 NQ/HotpotQA；
-2. 构建或下载 Wikipedia Corpus 与索引；
-3. 冻结验证集和 Retriever 版本；
-4. 在 8xL20 上运行 Qwen2.5-3B GRPO；
-5. 对比 Base、检索增强 Base、官方 Checkpoint 和自训练 Checkpoint；
-6. 评测 EM/F1 与搜索行为。
+### Search engine
 
-不要直接照搬 H100 的时间估算。先根据 Tiny GRPO 实测：
+- 不同 Retriever 的训练动态；
+- 训练时与推理时 Retriever 不一致时的泛化。
 
-- 每步耗时；
-- 每条 Rollout 的 Token 数；
-- Retriever P50/P95 延迟；
-- GPU 峰值显存；
-- Checkpoint 大小；
-- 每 100 步的存储增长。
+### Data scaling
 
-再估算官方 `1005 steps` 的时间和成本。
+- 固定其余配置，改变训练数据量；
+- 至少 3 个不同 seed，报告均值、方差、成本和代表性轨迹。
 
-### 验收门槛
+## Stage 08：自定义扩展
 
-- 数据、索引、模型和代码版本全部固定；
-- 全程没有不可恢复的训练中断；
-- Checkpoint 可恢复训练并可独立评测；
-- 与冻结基线使用相同评测脚本；
-- 报告效果、吞吐、显存、耗时和失败样本。
+只有官方主线复现后才进入：
 
-## Stage 05：PPO 对照
+- 噪声文档、无答案和错误证据；
+- Retriever 超时、空结果和服务失败；
+- 多跳任务中的 `max_turns=1/2/3`；
+- topk、reranker、在线搜索与本地搜索切换；
+- 新 reward、路由或轨迹优化方法。
 
-GRPO 跑通后再运行 PPO，因为 PPO 额外引入 Critic，训练状态和显存成本更高。
+这些结果必须标记为“我们的扩展”，不与官方复现混写。
 
-重点比较：
-
-- GRPO 是否更省显存；
-- PPO Critic 是否让训练更稳定；
-- 两者收敛速度；
-- 搜索调用率、Hit@k 和最终 EM/F1；
-- Checkpoint 大小和恢复成本；
-- 相同 GPU 时间下的最终收益。
-
-PPO 不作为第一条训练主线，只作为算法对照。
-
-## 源码学习顺序
-
-### 第一层：Agent 闭环
-
-1. `search_r1/llm_agent/generation.py`
-2. `search_r1/llm_agent/tensor_helper.py`
-3. `search_r1/search/retrieval_server.py`
-4. `search_r1/search/retrieval.py`
-
-目标：能够解释一条轨迹如何完成：
+## 立即执行顺序
 
 ```text
-prompt
-  -> <search>
-  -> Retriever
-  -> <information>
-  -> continued reasoning
-  -> <answer>
+Stage04-0 真实数据/索引 preflight
+  -> Stage04-1 NQ Base + Search 冻结基线
+  -> Stage04-2 NQ PPO 1-step
+  -> Stage04-3 NQ PPO 短程训练与回载
 ```
 
-### 第二层：训练编排
-
-1. `verl/trainer/main_ppo.py`
-2. `verl/trainer/ppo/ray_trainer.py`
-3. `verl/workers/`
-4. Reward 与 Advantage 计算代码
-
-目标：能够解释 Ray Worker、Actor、Reference、Critic、Rollout 和 Reward 如何协作。
-
-### 第三层：GRPO 关键机制
-
-重点理解：
-
-- 同一问题为何生成多条轨迹；
-- 相对奖励如何转换成 Advantage；
-- KL 约束如何影响更新；
-- `state_masking` 为什么决定哪些 Token 参与训练；
-- 搜索观察是否应进入策略梯度；
-- 稀疏答案奖励如何影响前序搜索动作。
-
-## 实验记录规范
-
-每个实验目录至少包含：
-
-```text
-README.md          # 问题、假设和运行方式
-config.md          # 完整参数与代码/模型/数据版本
-metrics.json       # 机器可读指标
-results.md         # 结果、结论和下一步
-failure-cases.md   # 代表性失败轨迹
-```
-
-每次运行必须记录：
-
-- Git commit 和 branch；
-- 模型 ID 或本地路径；
-- 数据与索引版本；
-- 完整命令；
-- GPU 数量和显存；
-- 开始/结束时间；
-- 日志与 Checkpoint 路径；
-- 训练和验证指标；
-- 是否通过验收门槛。
-
-Git 只保存源码、小型固定数据、配置和总结。模型、索引、原始日志、完整轨迹和 Checkpoint 保存在 `/data/cache/search-r1/`。
-
-## 推荐节奏
-
-### Day 1
-
-- 阅读 Agent 闭环代码；
-- 重跑 Stage 00；
-- 拆分搜索标签生成率和 Retriever 请求率；
-- 保存一条完整成功轨迹和失败轨迹。
-
-### Day 2
-
-- 完成 Base vs RL 四象限；
-- 输出失败类型；
-- 确认 Retriever 和 RL 各自贡献。
-
-### Day 3-4
-
-- 建立隔离的 veRL/vLLM 环境；
-- 依次完成 1、5、20 个 Tiny GRPO steps；
-- 验证 Checkpoint 回载。
-
-### Day 5 以后
-
-- 执行 `max_turns/topk/state_masking/reward` 消融；
-- 根据实测吞吐决定是否启动 NQ/HotpotQA 全量复现；
-- GRPO 稳定后再加入 PPO 对照。
-
-## 下一步
-
-Stage 01 已通过验收，下一步进入 Stage 02 Tiny GRPO：
-
-1. 建立隔离的 veRL/vLLM 训练环境；
-2. 依次运行 1、5、20 个 optimizer steps；
-3. 检查 Reward、KL、Loss、显存和失败轨迹；
-4. 验证 Checkpoint 保存与回载。
+所有大模型、索引、checkpoint、原始日志和完整轨迹写入 `/data/cache/search-r1/`；Git 只保存脚本、配置、manifest、指标和结论。

@@ -1,72 +1,65 @@
 # Search-R1 L20 Experiment
 
-基于官方 Search-R1 的独立实验区，用于学习搜索 Agent、复现评测并逐步开展 GRPO 训练。官方源码保留在仓库根目录，所有自定义内容都在 `experiment/`。
+基于官方完整 Search-R1 的独立实验区。官方源码保留在仓库根目录，所有自定义脚本、数据和结论均位于 `experiment/`。
 
-## 快速开始
+## Stage 状态
+
+| Stage | 状态 | 作用 |
+| --- | --- | --- |
+| 00 | PASS | 搜索闭环冒烟 |
+| 01 | PASS | Base/GRPO × Search on/off 四象限 |
+| 02 | PASS | Tiny GRPO 训练与 checkpoint 回载 |
+| 03 | PASS | seed 与可复现性门禁 |
+| 04 | NEXT | 官方 Preliminary：NQ + PPO |
+| 05 | PENDING | 官方 v0.1：多数据集 PPO/GRPO |
+| 06 | PENDING | 官方 v0.2：masking、长训练和模型规模 |
+| 07 | PENDING | 官方 v0.3：reward/backbone/retriever/data 消融 |
+| 08 | PENDING | 自定义鲁棒性扩展 |
+
+详细配置和验收条件见 `TRAINING_PLAN.md`。
+
+## 已有入口
 
 ```bash
 source experiment/env.sh
-# Stage 00
+
+# Stage00
 bash experiment/runs/runsmoke.sh
-# Stage 01
+
+# Stage01
 bash experiment/runs/run01_base_vs_rl.sh
+
+# Stage02
+UPDATES=20 bash experiment/runs/run02_tiny_grpo.sh
+
+# Stage03 seed gate 单次运行
+SEED=3103 REPLICA=a UPDATES=2 bash experiment/runs/run03_seed_smoke.sh
 ```
 
-默认使用 1 张 GPU 顺序运行 Qwen2.5-3B Base 和 Search-R1 GRPO，E5 Retriever 在 CPU 上运行。
+Stage04 尚未创建运行脚本；下一步先做官方 NQ/Wiki-18/E5 数据与索引 preflight，不把未验收命令写成可运行入口。
 
 ## 目录作用
 
 | 路径 | 作用 |
 | --- | --- |
-| `README.md` | 实验入口和目录导航 |
-| `TRAINING_PLAN.md` | Smoke、四象限评测、Tiny GRPO 和完整复现路线 |
-| `FINAL_REPORT.md` | 最近一次已验证的实验结论 |
-| `env.sh` | 统一模型、缓存和 Python 路径 |
-| `data/` | 可提交 Git 的小型语料和 QA 数据 |
-| `runs/` | 一键运行实验的 Shell 入口 |
-| `scripts/` | 建索引、执行评测和汇总指标 |
-| `search_r1_lab/` | Agent、协议、Retriever、指标和 I/O 实现 |
+| `README.md` | Stage 状态和运行入口 |
+| `TRAINING_PLAN.md` | 对齐官方 Preliminary/v0.1/v0.2/v0.3 的实验路线 |
+| `FINAL_REPORT.md` | 当前已验证结果和结论边界 |
+| `env.sh` | 模型、缓存和 Python 路径 |
+| `data/` | 可提交的小型数据与 manifest |
+| `runs/` | 一键运行脚本 |
+| `scripts/` | 数据、索引、评测、验收和 SwanLab 工具 |
+| `search_r1_lab/` | 实验辅助模块 |
 | `tests/` | 协议与指标回归测试 |
-| `results/` | 分阶段实验结果摘要 |
-
-## 关键模块
-
-| 文件 | 作用 |
-| --- | --- |
-| `runs/runsmoke.sh` | 串联环境检查、索引、推理、评测和报告 |
-| `runs/run01_base_vs_rl.sh` | 运行 Base/GRPO 与 Retriever 开关四象限 |
-| `scripts/build_index.py` | 使用 E5 + FAISS 构建检索索引 |
-| `scripts/run_eval.py` | 运行 no-search/search 轨迹 |
-| `scripts/summarize.py` | 生成 EM、F1、Hit@k 等指标 |
-| `scripts/generate_stage01_data.py` | 生成固定 64 条 Stage 01 数据 |
-| `scripts/check_retriever.py` | 在模型推理前验收 Retriever |
-| `scripts/summarize_stage01.py` | 汇总四象限差异和失败类型 |
-| `search_r1_lab/agent.py` | 控制搜索、观察和回答的 Agent 循环 |
-| `search_r1_lab/protocol.py` | 解析 `<search>` 和 `<answer>` 协议 |
-| `search_r1_lab/retrieval.py` | 构建和查询向量索引 |
-| `search_r1_lab/metrics.py` | 统一答案与搜索指标 |
-| `search_r1_lab/io.py` | 读写 JSONL 数据和轨迹 |
+| `results/` | 各 Stage 结果摘要 |
 
 ## 产物边界
 
-Git 只保存源码、小型数据、配置和结果摘要。模型、Checkpoint、大型索引、完整日志和 Rollout 轨迹保存在 `/data/cache/search-r1/` 或 `SEARCH_R1_LAB_CACHE`。
-
-## 阅读顺序
-
-```text
-README.md
-  -> TRAINING_PLAN.md
-  -> runs/runsmoke.sh
-  -> runs/run01_base_vs_rl.sh
-  -> search_r1_lab/agent.py
-  -> search_r1_lab/protocol.py
-  -> search_r1_lab/retrieval.py
-  -> search_r1_lab/metrics.py
-  -> results/
-```
+Git 只保存源码、小型数据、配置、manifest 和结果摘要。模型、checkpoint、大型索引、原始日志与完整 rollout 位于 `/data/cache/search-r1/`。
 
 ## References
 
-- Search-R1 paper: https://arxiv.org/abs/2503.09516
-- Official implementation: https://github.com/PeterGriffinJin/Search-R1
-- Official checkpoints: https://huggingface.co/collections/PeterJinGo/search-r1
+- Official code: https://github.com/PeterGriffinJin/Search-R1
+- Paper 1: https://arxiv.org/abs/2503.09516
+- Paper 2: https://arxiv.org/abs/2505.15117
+- Official experiment log: https://github.com/PeterGriffinJin/Search-R1/blob/main/docs/experiment_log.md

@@ -40,4 +40,4 @@ SwanLab 历史回放（console 指标上传，不含实时系统遥测）：
 - same-b: `xt5m0nxa`
 - different: `gfk3vl14`
 
-下一步按 `PLAN.md` 进入 03-A 行为探针，再做 03-B 的 `state_masking` 和 reward 核心消融。
+Stage03 已按可复现性门禁收口。旧消融计划已按官方实验版本迁移到 Stage06/07/08；下一步进入 Stage04-0 的 NQ/Wiki-18/E5 preflight。
