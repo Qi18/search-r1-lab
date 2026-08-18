@@ -28,10 +28,17 @@ for _ in $(seq 1 1800); do
 done
 curl -fsS http://127.0.0.1:8015/health
 
-SWANLAB_LIVE=true ALGORITHM=ppo UPDATES=305 "${LAB_ROOT}/runs/run05_train.sh"
+PYTHONPATH="/data/cache/search-r1/swanlab-runtime:${PYTHONPATH:-}" /usr/bin/python3 -u \
+  "${LAB_ROOT}/scripts/live_stage05_swanlab.py" --run-root "${RUN_ROOT}" \
+  --pid-file "${RUN_ROOT}/formal/supervisor.pid" --logdir "${RUN_ROOT}/formal/swanlog" \
+  --manifest "${RUN_ROOT}/formal/swanlab-live.json" >"${RUN_ROOT}/formal/swanlab-live.log" 2>&1 &
+SWANLAB_PID=$!
+
+SWANLAB_LIVE=false ALGORITHM=ppo UPDATES=305 "${LAB_ROOT}/runs/run05_train.sh"
 MODEL_PATH="${RUN_ROOT}/ppo-305step/checkpoints/actor/global_step_300" \
   EVAL_NAME=ppo-300step "${LAB_ROOT}/runs/run05_eval.sh"
-SWANLAB_LIVE=true ALGORITHM=grpo UPDATES=305 "${LAB_ROOT}/runs/run05_train.sh"
+SWANLAB_LIVE=false ALGORITHM=grpo UPDATES=305 "${LAB_ROOT}/runs/run05_train.sh"
 MODEL_PATH="${RUN_ROOT}/grpo-305step/checkpoints/actor/global_step_300" \
   EVAL_NAME=grpo-300step "${LAB_ROOT}/runs/run05_eval.sh"
+wait "${SWANLAB_PID}"
 echo FINAL_STAGE05_FORMAL_PASS
