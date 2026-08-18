@@ -1,0 +1,18 @@
+{
+  "project": "Search-R1",
+  "project_url": "https://swanlab.cn/@richliu0153/Search-R1",
+  "runs": {
+    "train_1step": {
+      "id": "bhuatm6i",
+      "url": "https://swanlab.cn/@richliu0153/Search-R1/runs/bhuatm6i"
+    },
+    "train_5step": {
+      "id": "0050kszd",
+      "url": "https://swanlab.cn/@richliu0153/Search-R1/runs/0050kszd"
+    },
+    "acceptance": {
+      "id": "9fh6vn9j",
+      "url": "https://swanlab.cn/@richliu0153/Search-R1/runs/9fh6vn9j"
+    }
+  }
+}

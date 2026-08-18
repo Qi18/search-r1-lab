@@ -10,7 +10,7 @@
 | 01 | PASS | Base/GRPO × Search on/off 四象限 |
 | 02 | PASS | Tiny GRPO 训练与 checkpoint 回载 |
 | 03 | PASS | seed 与可复现性门禁 |
-| 04 | NEXT | 官方 Preliminary：NQ + PPO |
+| 04 | PASS | 官方 Preliminary：NQ + PPO |
 | 05 | PENDING | 官方 v0.1：多数据集 PPO/GRPO |
 | 06 | PENDING | 官方 v0.2：masking、长训练和模型规模 |
 | 07 | PENDING | 官方 v0.3：reward/backbone/retriever/data 消融 |
@@ -34,9 +34,14 @@ UPDATES=20 bash experiment/runs/run02_tiny_grpo.sh
 
 # Stage03 seed gate 单次运行
 SEED=3103 REPLICA=a UPDATES=2 bash experiment/runs/run03_seed_smoke.sh
+
+# Stage04 官方 NQ + PPO 完整闭环
+bash experiment/runs/run04_prepare.sh
+bash experiment/runs/run04_all.sh
+bash experiment/runs/run04_swanlab.sh
 ```
 
-Stage04 尚未创建运行脚本；下一步先做官方 NQ/Wiki-18/E5 数据与索引 preflight，不把未验收命令写成可运行入口。
+Stage04 已完成：同一冻结 val128 上，Base/1-step/5-step EM 为 3.125%/3.125%/5.469%；完整过程与结论见 `results/04-nq-ppo/results.md`。
 
 ## 目录作用
 

@@ -14,7 +14,7 @@
 | 01 | PASS | Base/GRPO × Search on/off 四象限 | 我们的前置门禁 |
 | 02 | PASS | 1/5/20-step Tiny GRPO 与 checkpoint 回载 | 我们的前置门禁 |
 | 03 | PASS | seed 传递与可复现性边界 | 我们的前置门禁 |
-| 04 | NEXT | NQ + PPO 小步复现 | 官方 Preliminary |
+| 04 | PASS | NQ + PPO 小步复现 | 官方 Preliminary |
 | 05 | PENDING | 多数据集 PPO/GRPO | 官方 v0.1 |
 | 06 | PENDING | masking、长训练、模型规模 | 官方 v0.2 |
 | 07 | PENDING | reward/backbone/retriever/data 消融 | 官方 v0.3 |
@@ -89,6 +89,15 @@ Stage03 不再提前承载官方 v0.3 消融，只负责证明后续实验中的
 - PPO 的 Actor、Critic、Reference、Rollout 全部执行；
 - 训练前后使用同一 NQ 验证集；
 - 报告 EM/F1、搜索率、Hit@k、KL、显存和每步耗时。
+
+### 结果与结论
+
+- Retriever：21,015,324 篇 Wiki-18；Hit@1 52.34%，Hit@3 64.06%，平均/P95 延迟 3.0/11.8ms。
+- Base 与 PPO 1-step：EM 都为 3.125%，Token F1 都为 5.98%；1-step 只证明更新、双 checkpoint 和回载闭环。
+- PPO 5-step：EM 5.469%，Token F1 8.95%，搜索率 89.06%，平均搜索 1.83 次；相对 Base 的搜索行为和短程指标均发生变化。
+- PPO 常规更新约 98–101 秒；保存 checkpoint 的 step 约 169–173 秒；峰值显存约 44.1GiB/卡。
+- 验收结论：官方真实数据、Retriever、Actor/Critic/Reference/vLLM Rollout、GAE/PPO、双 checkpoint 与独立回载全部 PASS。
+- 实验边界：仅 5 个更新、单个冻结 val128；可以说明工程闭环与短程变化，不能说明完整 NQ 收敛或论文效果复现。
 
 ## Stage 05：官方 v0.1——多数据集 PPO/GRPO
 
