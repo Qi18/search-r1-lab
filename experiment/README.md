@@ -11,7 +11,7 @@
 | 02 | PASS | Tiny GRPO 训练与 checkpoint 回载 |
 | 03 | PASS | seed 与可复现性门禁 |
 | 04 | PASS | 官方 Preliminary：NQ + PPO |
-| 05 | PENDING | 官方 v0.1：多数据集 PPO/GRPO |
+| 05 | SHORT PASS | 官方 v0.1：多数据集 PPO/GRPO；305-step 正式路线已准备 |
 | 06 | PENDING | 官方 v0.2：masking、长训练和模型规模 |
 | 07 | PENDING | 官方 v0.3：reward/backbone/retriever/data 消融 |
 | 08 | PENDING | 自定义鲁棒性扩展 |
@@ -39,9 +39,20 @@ SEED=3103 REPLICA=a UPDATES=2 bash experiment/runs/run03_seed_smoke.sh
 bash experiment/runs/run04_prepare.sh
 bash experiment/runs/run04_all.sh
 bash experiment/runs/run04_swanlab.sh
+
+# Stage05 官方 v0.1 短程验收
+bash experiment/runs/run05_prepare.sh
+bash experiment/runs/run05_all.sh
+bash experiment/runs/run05_swanlab.sh
+
+# Stage05 305-step PPO -> GRPO 长程路线
+nohup bash experiment/runs/run05_formal.sh \
+  > /data/cache/search-r1/stage05-v01/runs/formal/supervisor.log 2>&1 &
 ```
 
 Stage04 已完成：同一冻结 val128 上，Base/1-step/5-step EM 为 3.125%/3.125%/5.469%；完整过程与结论见 `results/04-nq-ppo/results.md`。
+
+Stage05 短程门禁已完成：官方 NQ + HotpotQA 训练格式、七数据集 val112、PPO/GRPO 1-step、checkpoint 回载均 PASS。Base/PPO/GRPO 的 EM 都是 6.25%；该结果只验证工程闭环，不代表 305-step 收敛。完整结果见 `results/05-multidata-ppo-grpo/results.md`。
 
 ## 目录作用
 

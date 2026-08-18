@@ -1,0 +1,14 @@
+{
+  "ppo": {
+    "run": "ppo",
+    "swanlab_run_id": "kk4p2fzb"
+  },
+  "grpo": {
+    "run": "grpo",
+    "swanlab_run_id": "254ihutu"
+  },
+  "summary": {
+    "run": "summary",
+    "swanlab_run_id": "blpdvhnv"
+  }
+}

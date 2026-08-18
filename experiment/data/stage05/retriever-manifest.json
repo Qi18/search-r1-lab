@@ -1,0 +1,15 @@
+{
+  "source": {
+    "index": "PeterJinGo/wiki-18-e5-index",
+    "corpus": "PeterJinGo/wiki-18-corpus",
+    "retriever": "intfloat/e5-base-v2"
+  },
+  "bytes": {
+    "index": 64559075373,
+    "corpus": 14393579520
+  },
+  "sha256": {
+    "index": "69c98463fdb41fc08737d88513c597725f311c44f7ba6dca4b05d8c7c658d166",
+    "corpus": "85a787a692e73fdd657e86411bfd1ac810ed193b1eea4a478de449d4871c06b9"
+  }
+}

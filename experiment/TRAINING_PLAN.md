@@ -114,6 +114,13 @@ Stage03 不再提前承载官方 v0.3 消融，只负责证明后续实验中的
 
 先在 NQ/HotpotQA 路线上对齐 PPO/GRPO，再扩展到论文中的七数据集评测。比较效果、稳定性、显存、吞吐和 checkpoint 成本。
 
+
+当前进度：
+
+- 短程门禁 PASS：train512（NQ/HotpotQA 各 256），val112（七数据集各 16），PPO/GRPO 1-step 与 checkpoint 回载均通过。
+- 305-step 长程路线使用 8 x L20；受 48GB 显存约束，`train_batch_size` 从官方 512 缩为 32。
+- 保留官方关键语义：lr `1e-6`、warmup ratio `0.95`、`max_turns=4`、topk3、state masking；PPO `n_agent=1`，GRPO `n_agent=5`。
+- 每 100 步保留 Actor（PPO 另含 Critic）checkpoint。当前 veRL 版本不保存 PPO optimizer/scheduler 状态，因此只支持模型回载，不承诺精确断点续训。
 ## Stage 06：官方 v0.2——稳定性与规模
 
 复现作者修复 retrieved-token masking 和 GRPO sample indexing 后的长训练路线。
